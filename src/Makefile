@@ -1,0 +1,46 @@
+##
+ # Hermod - Modular application framework
+ #
+ # Copyright (c) 2016 Cowlab
+ #
+ # Hermod is free software: you can redistribute it and/or modify
+ # it under the terms of the GNU Lesser General Public License 
+ # version 3 as published by the Free Software Foundation. You
+ # should have received a copy of the GNU Lesser General Public
+ # License along with this program, see LICENSE file for more details.
+ # This program is distributed WITHOUT ANY WARRANTY see README file.
+ #
+ # Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
+ #
+TARGET = hermod
+SRC  = main.cpp App.cpp Config.cpp Log.cpp Module.cpp Request.cpp
+SRC += Page.cpp Session.cpp
+SRC += ResponseHeader.cpp
+
+INSTALL="/usr/local"
+
+CC = c++
+CFLAGS   = -Wall -Wextra -Wuninitialized -Wunused-label -Wunused-value -Wunused-variable -Wno-unknown-pragmas
+CFLAGS  += -DINSTALL=\"$(INSTALL)\"
+LDFLAGS  = -lfcgi -lfcgi++
+LDFLAGS += -ldl -rdynamic
+
+_COBJ =  $(SRC:.cpp=.o)
+COBJ = $(patsubst %, %,$(_COBJ))
+
+all: $(COBJ)
+	@echo "  [LD] $(TARGET)"
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(COBJ) $(DBOBJ)
+
+install:
+	cp $(TARGET) $(INSTALL)/bin/
+
+clean:
+	@echo "  [RM] $(TARGET) *.o"
+	@rm -f $(TARGET) $(COBJ)
+	@echo "  [RM] temporary files (*~)"
+	@rm -f *~
+
+$(COBJ) : %.o : %.cpp
+	@echo "  [CC] $@"
+	@$(CC) $(CFLAGS) -c $< -o $@
