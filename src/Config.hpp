@@ -26,6 +26,7 @@ class ConfigKey;
 class Config
 {
 public:
+	static void destroy();
 	static Config* getInstance();
 	std::string get(const std::string &group, const std::string &key, size_t *pos = 0);
 	void set(const std::string &group,
@@ -48,6 +49,7 @@ class ConfigGroup
 {
 public:
 	ConfigGroup();
+	~ConfigGroup();
 	std::string getName();
 	void setName(const std::string name);
 	ConfigKey *createKey(const std::string &name, bool multiple = false);

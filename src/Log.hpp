@@ -54,6 +54,7 @@ class Log
 {
 public:
 	~Log();
+	static void destroy();
 	static Log* getInstance();
 	static void setFile(const std::string &filename);
 	static void sync(void);

@@ -26,8 +26,15 @@
 
 using namespace std;
 
+// Call to OS_LibShutdown() is needed to avoid fcgi leak
+extern "C"
+{
+void OS_LibShutdown(void);
+}
+
 App::App(void)
 {
+	mRunning = false;
 	mPlugins.clear();
 }
 
@@ -39,9 +46,17 @@ void App::exec(void)
 	
 	try {
 		FCGX_InitRequest(&fcgiReq, mFcgxSock, 0);
+		
+		mRunning = true;
 
-		while(FCGX_Accept_r(&fcgiReq) == 0)
+		while(mRunning)
 		{
+			if (FCGX_Accept_r(&fcgiReq) != 0)
+			{
+				Log::info() << "FastCGI interrupted during accept." << Log::endl;
+				Log::sync();
+				break;
+			}
 			req = new Request( &fcgiReq );
 			req->setPlugins( &mPlugins );
 			req->process();
@@ -59,6 +74,14 @@ void App::exec(void)
 	catch(std::exception& e) {
 		cout << "App::exception " << endl;
 		cout << e.what() << endl;
+	}
+	
+	try {
+		OS_LibShutdown();
+		Config::destroy();
+		Log::destroy();
+	} catch(std::exception& e) {
+		// ToDo: handle error ? !
 	}
 }
 
@@ -165,6 +188,11 @@ void App::moduleUnload(int n)
 		cerr << "MOD: " << e.what() << endl;
 		return;
 	}
+}
+
+void App::sigInt(void)
+{
+	FCGX_ShutdownPending();
 }
 
 /*	if ( ! mSession->isAuth() )

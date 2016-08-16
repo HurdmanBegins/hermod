@@ -19,6 +19,22 @@
 
 Config* Config::mInstance = NULL;  
 
+void Config::destroy(void)
+{
+	if ( ! mInstance)
+		return;
+	// Delete all config groups
+	while( mInstance->mGroups.size() )
+	{
+		ConfigGroup *g = mInstance->mGroups.back();
+		mInstance->mGroups.pop_back();
+		delete g;
+	}
+	// Delete singleton object
+	delete mInstance;
+	mInstance = NULL;
+}
+
 Config* Config::getInstance()
 {
 	if ( ! mInstance)
@@ -164,6 +180,16 @@ ConfigGroup::ConfigGroup()
 {
 	mName.clear();
 	mKeys.empty();
+}
+
+ConfigGroup::~ConfigGroup()
+{
+	while(mKeys.size())
+	{
+		ConfigKey *k = mKeys.back();
+		mKeys.pop_back();
+		delete k;
+	}
 }
 
 std::string ConfigGroup::getName()

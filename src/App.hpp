@@ -22,10 +22,13 @@ public:
 	void exec (void);
 	void init (void);
 	void moduleAdd(Module *mod);
+public:
+	static void sigInt(void);
 protected:
 	void moduleLoad  (const std::string &name);
 	void moduleUnload(int n);
 private:
+	bool         mRunning;
 	int          mFcgxSock;
 	Session     *mSession;
 	std::vector<Module *> mPlugins;

@@ -16,16 +16,28 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <signal.h>
 #include "App.hpp"
 #include "Config.hpp"
 
 static void config(int argc, char **argv);
+static void signal_handler(int sig);
 
 int main(int argc, char **argv)
 {
+	struct sigaction sa;
+
 	config(argc, argv);
 
 	App app;
+
+	// Initialise signal handler
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags   = 0;
+	sa.sa_handler = signal_handler;
+	// Install signal handler
+	sigaction(SIGINT, &sa, NULL);
+
 	app.init();
 	app.exec();
 
@@ -69,4 +81,10 @@ static void config(int argc, char **argv)
 		cfg->set("global", "log_file", DEF_LOG_FILE);
 	if ( cfg->get("plugins", "directory").empty() )
 		cfg->set("plugins", "directory", DEF_DIR_PLUGINS);
+}
+
+static void signal_handler(int sig)
+{
+	if (sig == SIGINT)
+		App::sigInt();
 }

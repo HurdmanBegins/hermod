@@ -30,6 +30,19 @@ Log::Log()
 	mInfo.setLevel(20);
 }
 
+Log::~Log()
+{
+}
+
+void Log::destroy(void)
+{
+	if ( ! mInstance)
+		return;
+	// Free singleton object
+	delete mInstance;
+	mInstance = NULL;
+}
+
 Log* Log::getInstance()
 {
 	if ( ! mInstance)
@@ -91,7 +104,7 @@ void Log::sync(void)
 	if (l->mFile.is_open())
 		l->writeToFile(dat.str());
 	else
-		std::cout << dat.str();
+		std::cout << dat.str() << std::flush;
 	l->mInfo.clear();
 }
 
