@@ -77,8 +77,14 @@ void App::exec(void)
 	}
 	
 	try {
+		// Free fcgi
 		OS_LibShutdown();
+		// Unload modules
+		while(mPlugins.size())
+			moduleUnload(mPlugins.size() - 1);
+		// Clear Config cache
 		Config::destroy();
+		// Clear Log layer
 		Log::destroy();
 	} catch(std::exception& e) {
 		// ToDo: handle error ? !
