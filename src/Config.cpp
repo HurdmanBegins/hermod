@@ -77,7 +77,6 @@ ConfigGroup *Config::createGroup(const std::string &name)
 
 ConfigGroup *Config::getGroup(const std::string &name)
 {
-	ConfigGroup *grp;
 	size_t nbGroups;
 	
 	nbGroups = mGroups.size();
@@ -85,7 +84,7 @@ ConfigGroup *Config::getGroup(const std::string &name)
 	// Look into the list of known groups
 	for (size_t i = 0; i < nbGroups; i++)
 	{
-		grp = mGroups.at(i);
+		ConfigGroup *grp = mGroups.at(i);
 		if (name.compare(grp->getName()) == 0)
 			return grp;
 	}
@@ -179,7 +178,7 @@ void Config::set(const std::string &group,
 ConfigGroup::ConfigGroup()
 {
 	mName.clear();
-	mKeys.empty();
+	mKeys.clear();
 }
 
 ConfigGroup::~ConfigGroup()
@@ -196,7 +195,7 @@ std::string ConfigGroup::getName()
 {
 	return mName;
 }
-void ConfigGroup::setName(const std::string name)
+void ConfigGroup::setName(const std::string &name)
 {
 	mName = name;
 }
@@ -230,7 +229,6 @@ ConfigKey *ConfigGroup::createKey(const std::string &name, bool multiple)
 
 ConfigKey *ConfigGroup::getKey(const std::string &name, size_t *pos)
 {
-	ConfigKey *key;
 	size_t nbKeys;
 	
 	nbKeys = mKeys.size();
@@ -242,7 +240,7 @@ ConfigKey *ConfigGroup::getKey(const std::string &name, size_t *pos)
 	// Look into the list of known keys
 	for (size_t i = first; i < nbKeys; i++)
 	{
-		key = mKeys.at(i);
+		ConfigKey *key = mKeys.at(i);
 		if (name.compare(key->getName()) == 0)
 		{
 			if (pos)
@@ -256,6 +254,7 @@ ConfigKey *ConfigGroup::getKey(const std::string &name, size_t *pos)
 // -------------------- KEYs -------------------- //
 ConfigKey::ConfigKey()
 {
+	mPos = 0;
 	mName.clear();
 	mValue.clear();
 }
@@ -264,7 +263,7 @@ std::string ConfigKey::getName()
 {
 	return mName;
 }
-void ConfigKey::setName(const std::string name)
+void ConfigKey::setName(const std::string &name)
 {
 	mName = name;
 }
@@ -282,7 +281,7 @@ std::string ConfigKey::getValue()
 {
 	return mValue;
 }
-void ConfigKey::setValue(const std::string value)
+void ConfigKey::setValue(const std::string &value)
 {
 	mValue = value;
 }

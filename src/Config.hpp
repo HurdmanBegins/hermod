@@ -38,7 +38,7 @@ protected:
 	ConfigGroup *getGroup   (const std::string &name);
 private:
 	Config() {
-		mGroups.empty();
+		mGroups.clear();
 	};
 private:
 	static Config* mInstance;
@@ -51,7 +51,7 @@ public:
 	ConfigGroup();
 	~ConfigGroup();
 	std::string getName();
-	void setName(const std::string name);
+	void setName(const std::string &name);
 	ConfigKey *createKey(const std::string &name, bool multiple = false);
 	ConfigKey *getKey   (const std::string &name, size_t *pos = 0);
 private:
@@ -66,9 +66,9 @@ public:
 	std::string getName();
 	int         getPos();
 	std::string getValue();
-	void setName (const std::string name);
+	void setName (const std::string &name);
 	void setPos  (int pos);
-	void setValue(const std::string value);
+	void setValue(const std::string &value);
 private:
 	std::string mName;
 	std::string mValue;
