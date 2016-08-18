@@ -29,6 +29,7 @@ public:
 	static void destroy();
 	static Config* getInstance();
 	std::string get(const std::string &group, const std::string &key, size_t *pos = 0);
+	ConfigKey  *getKey(const std::string &group, int index);
 	void set(const std::string &group,
 	         const std::string &key,
 	         const std::string &value);
@@ -54,6 +55,7 @@ public:
 	void setName(const std::string &name);
 	ConfigKey *createKey(const std::string &name, bool multiple = false);
 	ConfigKey *getKey   (const std::string &name, size_t *pos = 0);
+	ConfigKey *getKey   (unsigned int index);
 private:
 	std::string mName;
 	std::vector<ConfigKey *> mKeys;

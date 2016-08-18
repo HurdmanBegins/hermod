@@ -30,6 +30,7 @@ public:
 	~Request();
 	void process(void);
 	void setPlugins(std::vector<Module *> *plugins);
+	std::string getUri(int n);
 //protected:
 //	Page *findPageByName(const std::string &name);
 private:
@@ -37,7 +38,6 @@ private:
 	void processOptions(void);
 	void processPage   ();
 	std::string getCookieByName(const std::string &name, bool allowEmpty);
-	std::string getUri(int n);
 	void initSession(void);
 private:
 	FCGX_Request  *mFcgiRequest;

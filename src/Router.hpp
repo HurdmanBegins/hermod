@@ -12,26 +12,24 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#include "Module.hpp"
-#include "Router.hpp"
-#include "Session.hpp"
+#ifndef ROUTER_HPP
+#define ROUTER_HPP
 
-class App
+#include <vector>
+#include "RouteTarget.hpp"
+
+class Module;
+class Request;
+
+class Router
 {
 public:
-	App (void);
-	void exec (void);
-	void init (void);
-	void moduleAdd(Module *mod);
-public:
-	static void sigInt(void);
-protected:
-	void moduleLoad  (const std::string &name);
-	void moduleUnload(int n);
+	Router (void);
+	~Router();
+	RouteTarget *createTarget(Module *module);
+	void removeTarget(RouteTarget *target);
+	RouteTarget *find(Request *r);
 private:
-	bool         mRunning;
-	int          mFcgxSock;
-	Router      *mRouter;
-	Session     *mSession;
-	std::vector<Module *> mPlugins;
+	std::vector<RouteTarget *> mTargets;
 };
+#endif

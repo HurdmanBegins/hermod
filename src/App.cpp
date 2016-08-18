@@ -23,6 +23,7 @@
 #include "Config.hpp"
 #include "Log.hpp"
 #include "Request.hpp"
+#include "Router.hpp"
 
 using namespace std;
 
@@ -34,15 +35,16 @@ void OS_LibShutdown(void);
 
 App::App(void)
 {
-	mRunning = false;
+	mRunning  = false;
+	mFcgxSock = -1;
+	mRouter   = NULL;
 	mPlugins.clear();
+	mSession  = NULL;
 }
 
 void App::exec(void)
 {
 	FCGX_Request fcgiReq;
-	
-	Request *req;
 	
 	try {
 		FCGX_InitRequest(&fcgiReq, mFcgxSock, 0);
@@ -51,6 +53,8 @@ void App::exec(void)
 
 		while(mRunning)
 		{
+			Request *req;
+			
 			if (FCGX_Accept_r(&fcgiReq) != 0)
 			{
 				Log::info() << "FastCGI interrupted during accept." << Log::endl;
@@ -59,6 +63,26 @@ void App::exec(void)
 			}
 			req = new Request( &fcgiReq );
 			req->setPlugins( &mPlugins );
+			
+			RouteTarget *route = mRouter->find(req);
+			if (route)
+			{
+				Log::info() << "App: Found a route for this request " << Log::endl;
+				Page *page = route->newPage();
+				if (page)
+				{
+					page->setRequest( req );
+					//page->initReponse( );
+					//page->initSession( );
+					page->process();
+				
+					route->freePage(page);
+				}
+			}
+			else
+				Log::info() << "App: No route for this request :(" << Log::endl;
+
+			// ToDo : Old process method
 			req->process();
 
 			// Delete "Request" object at the end of the process
@@ -82,6 +106,9 @@ void App::exec(void)
 		// Unload modules
 		while(mPlugins.size())
 			moduleUnload(mPlugins.size() - 1);
+		// Clear the local Router
+		delete mRouter;
+		mRouter = NULL;
 		// Clear Config cache
 		Config::destroy();
 		// Clear Log layer
@@ -105,6 +132,9 @@ void App::init(void)
 
 	// Init random number generator
 	std::srand(std::time(0));
+
+	// Create a Router for this App
+	mRouter = new Router;
 
 	// Load external modules
 	size_t pos = 0;
@@ -155,10 +185,11 @@ void App::moduleLoad(const std::string &name)
 		if (create == 0)
 			throw std::runtime_error("init function missing");
 	
-		newModule = (Module *)create();
+		newModule = create();
 		if (newModule == 0)
 			throw std::runtime_error("Create failed");
-	
+
+		newModule->initRouter(mRouter);
 	} catch (std::exception &e) {
 		Log::info() << "Load module " << name << " ";
 		Log::info() << "failed : " << e.what() << Log::endl;
@@ -175,9 +206,10 @@ void App::moduleLoad(const std::string &name)
 void App::moduleUnload(int n)
 {
 	Module *mod;
-	void (*destroy)(Module*);
 
 	try {
+		void (*destroy)(Module*);
+		
 		mod = mPlugins.at(n);
 		void *handle = mod->getHandle();
 		destroy = (void(*)(Module*))dlsym(handle, "destroy_object");

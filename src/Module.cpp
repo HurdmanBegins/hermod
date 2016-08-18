@@ -15,10 +15,22 @@
 #include <iostream>
 #include <string>
 #include "Module.hpp"
+#include "Router.hpp"
+#include "Page.hpp"
 
 Module::Module(void)
 {
 	mHandle = 0;
+}
+
+void Module::freePage(Page *page)
+{
+	(void)page;
+}
+
+void Module::initRouter(Router *router)
+{
+	(void)router;
 }
 
 int Module::pageCount(void)
@@ -31,13 +43,29 @@ Page *Module::getPage(int n)
 	return mPages.at(n);
 }
 
+Page *Module::newPage(const std::string &name)
+{
+	(void)name;
+	return NULL;
+}
+
 void *Module::getHandle(void)
 {
 	return mHandle;
 }
 
+std::string Module::getName(void)
+{
+	return mName;
+}
+
 void Module::setHandle(void *handle)
 {
 	mHandle = handle;
+}
+
+void Module::setName(const std::string &name)
+{
+	mName = name;
 }
 /* EOF */

@@ -109,6 +109,18 @@ std::string Config::get(const std::string &group, const std::string &key, size_t
 	return k->getValue();
 }
 
+ConfigKey *Config::getKey(const std::string &group, int index)
+{
+	ConfigGroup *g;
+	
+	// Get the specified group
+	g = getGroup(group);
+	if (g == NULL)
+		return NULL;
+	
+	return g->getKey(index);
+}
+
 void Config::load(const std::string &filename)
 {
 	std::fstream cfgFile;
@@ -249,6 +261,14 @@ ConfigKey *ConfigGroup::getKey(const std::string &name, size_t *pos)
 		}
 	}
 	return NULL;
+}
+
+ConfigKey *ConfigGroup::getKey(unsigned int index)
+{
+	if (index >= mKeys.size())
+		return NULL;
+	
+	return mKeys.at(index);
 }
 
 // -------------------- KEYs -------------------- //
