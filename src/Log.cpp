@@ -95,7 +95,6 @@ void Log::setFile(const std::string &filename)
 
 void Log::sync(void)
 {
-	std::fstream sfile;
 	std::ostringstream dat;
 	
 	Log *l = getInstance();

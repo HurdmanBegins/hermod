@@ -24,14 +24,14 @@
 class LogCtrl
 {
 public:
-	LogCtrl(int type) { (void)type; }
+	explicit LogCtrl(int type) { (void)type; }
 };
 
 class LogStream
 {
 public:
 	LogStream();
-	LogStream(int level);
+	explicit LogStream(int level);
 	void append  (const std::string &msg);
 	void clear   (void);
 	std::string getBuffer(void);
