@@ -21,9 +21,10 @@
 using namespace std;
 
 ResponseHeader::ResponseHeader()
+    : mContentType("text/plain")
 {
 	mRetCode = 200;
-	mContentType = "text/plain";
+//	mContentType = "text/plain";
 }
 
 void ResponseHeader::addHeader(string key, string value)
@@ -63,7 +64,7 @@ string ResponseHeader::getHeader(void)
 		h += "Content-type: " + mContentType + "\n";
 	
 	std::map<std::string, std::string>::iterator it;
-	for (it = mHeaders.begin(); it != mHeaders.end(); it++)
+	for (it = mHeaders.begin(); it != mHeaders.end(); ++it)
 	{
 		h += it->first +": " + it->second + "\n";
 	}

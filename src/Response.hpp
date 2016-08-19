@@ -12,41 +12,30 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef PAGE_HPP
-#define PAGE_HPP
+#ifndef RESPONSE_HPP
+#define RESPONSE_HPP
 
-#include <iostream>
-#include <string>
 #include <sstream>
-#include <vector>
-
-#include "Response.hpp"
-#include "Session.hpp"
+#include <streambuf>
+#include "ResponseHeader.hpp"
 
 class Request;
 
-using namespace std;
-
-class Page
-{
+/**
+ * Class used to build and send CGI responses
+ */
+class Response {
 public:
-	Page();
-	void   setRequest(Request   *obj);
-	void   setReponse(Response  *obj);
-	void   setSession(Session   *sess);
-	
-	std::string getUri(void);
-	
-	int    getArgCount(void);
-	string getArg(int n);
-	
-	virtual int process() = 0;
-protected:
-	std::string     mUri;
-	Request        *mRequest;
-	Response       *mResponse;
-	Session        *mSession;
+	explicit Response(Request *request = NULL);
+	ResponseHeader *header();
+	void catchCout  (void);
+	void releaseCout(void);
+	void send(void);
+	void setRequest(Request *request);
 private:
-	vector<string> mArgs;
+	Request          *mRequest;
+	ResponseHeader    mResponseHeader;
+	std::streambuf   *mCoutBackup;
+	std::stringstream mCoutBuffer;
 };
 #endif

@@ -23,6 +23,7 @@
 #include "Config.hpp"
 #include "Log.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "Router.hpp"
 
 using namespace std;
@@ -53,7 +54,8 @@ void App::exec(void)
 
 		while(mRunning)
 		{
-			Request *req;
+			Request  *req;
+			Response *rsp;
 			
 			if (FCGX_Accept_r(&fcgiReq) != 0)
 			{
@@ -61,30 +63,71 @@ void App::exec(void)
 				Log::sync();
 				break;
 			}
+			// Instanciate a new Request
 			req = new Request( &fcgiReq );
 			req->setPlugins( &mPlugins );
+			// Instanciate a new Response
+			rsp = new Response( req );
 			
-			RouteTarget *route = mRouter->find(req);
-			if (route)
+			if (req->getMethod() == Request::Option)
 			{
-				Log::info() << "App: Found a route for this request " << Log::endl;
-				Page *page = route->newPage();
-				if (page)
-				{
-					page->setRequest( req );
-					//page->initReponse( );
-					//page->initSession( );
-					page->process();
+				Log::info() << "App: OPTION request received" << Log::endl;
 				
-					route->freePage(page);
+				ResponseHeader *rh = rsp->header();
+				rh->addHeader("Allow", "HEAD,GET,PUT,DELETE,OPTIONS");
+				rh->addHeader("Access-Control-Allow-Headers", "access-control-allow-origin,x-requested-with");
+				std::string corsMethod = req->getParam("HTTP_CORS_METHOD");
+				if ( ! corsMethod.empty() )
+					rh->addHeader("Access-Control-Allow-Method", corsMethod);
+			}
+			else if ( (req->getMethod() == Request::Get) ||
+			          (req->getMethod() == Request::Post) )
+			{
+				RouteTarget *route = mRouter->find(req);
+				if (route)
+				{
+					Log::info() << "App: Found a route for this request " << Log::endl;
+					Page *page = route->newPage();
+					if (page)
+					{
+						rsp->catchCout();
+
+						try {
+							page->setRequest( req );
+							page->setReponse( rsp );
+							//page->initSession( );
+							page->process();
+						} catch (std::exception &e) {
+							Log::info() << "Request::process Exception " << e.what() << Log::endl;
+						}
+
+						rsp->releaseCout();
+
+						route->freePage(page);
+					}
+					else
+					{
+						Log::info() << "App: Failed to load target page" << Log::endl;
+						rsp->header()->setRetCode(404, "Not found");
+					}
+				}
+				else
+				{
+					Log::info() << "App: No route for this request :(" << Log::endl;
+					rsp->header()->setRetCode(404, "Not found");
 				}
 			}
 			else
-				Log::info() << "App: No route for this request :(" << Log::endl;
+			{
+				Log::info() << "App: Unknown method for this request :(" << Log::endl;
+				rsp->header()->setRetCode(404, "Not found");
+			}
 
-			// ToDo : Old process method
-			req->process();
+			rsp->send();
 
+			// Delete "Response" object at the end of the process
+			delete rsp;
+			rsp = NULL;
 			// Delete "Request" object at the end of the process
 			delete req;
 			req = 0;

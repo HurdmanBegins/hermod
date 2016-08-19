@@ -15,13 +15,14 @@
 #include <iostream>
 #include <string>
 #include "Page.hpp"
+#include "Request.hpp"
 
 Page::Page(void)
 {
 	mUri.clear();
-	mRequest = 0;
-	mResponseHeader = 0;
-	mSession = 0;
+	mRequest  = 0;
+	mResponse = 0;
+	mSession  = 0;
 }
 
 void Page::setRequest(Request *obj)
@@ -30,17 +31,18 @@ void Page::setRequest(Request *obj)
 	
 	// Clear args of a previous request (if any)
 	mArgs.clear();
-
-//	std::istringstream qs(obj->getEnvironment().getQueryString());
-//	for(std::string token; getline(qs, token, '/'); )
-//		mArgs.push_back(token);
+	// Compute the argument list
+	std::istringstream qs(obj->getParam("QUERY_STRING"));
+	for(std::string token; getline(qs, token, '/'); )
+		mArgs.push_back(token);
 }
 
-void Page::initReponse(ResponseHeader *obj)
+void Page::setReponse(Response *obj)
 {
-	mResponseHeader = obj;
+	mResponse = obj;
 }
-void Page::initSession(Session *sess)
+
+void Page::setSession(Session *sess)
 {
 	mSession = sess;
 }
@@ -57,9 +59,4 @@ int    Page::getArgCount(void)
 string Page::getArg(int n)
 {
 	return mArgs.at(n);
-}
-
-string Page::getResponseHeader(void)
-{
-	return mResponseHeader->getHeader();
 }

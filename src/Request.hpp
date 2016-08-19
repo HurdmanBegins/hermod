@@ -26,19 +26,19 @@ class Module;
 class Request
 {
 public:
-	Request(FCGX_Request *req);
+	enum Method { Undef, Get, Post, Option };
+public:
+	explicit Request(FCGX_Request *req);
 	~Request();
-	void process(void);
+//	void process(void);
 	void setPlugins(std::vector<Module *> *plugins);
+	FCGX_Request    *getFCGX  (void);
+	Request::Method  getMethod(void);
+	std::string      getParam (const std::string &name);
 	std::string getUri(int n);
-//protected:
-//	Page *findPageByName(const std::string &name);
 private:
-	void processHeaders(void);
-	void processOptions(void);
-	void processPage   ();
 	std::string getCookieByName(const std::string &name, bool allowEmpty);
-	void initSession(void);
+//	void initSession(void);
 private:
 	FCGX_Request  *mFcgiRequest;
 	ResponseHeader mResponseHeader;

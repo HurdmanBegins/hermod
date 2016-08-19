@@ -30,66 +30,20 @@ Request::~Request()
 //	Log::info() << "~Request" << Log::endl;
 }
 
-void Request::process(void)
+/*void Request::process(void)
 {
-	std::streambuf *backup;
-	std::stringstream buffer;
-	
-	// back up cout's streambuf
-	backup = std::cout.rdbuf();
-	// Clear the intermediate buffer
-	buffer.str(std::string());
-	// Redirect cout to intermediate buffer
-	std::cout.rdbuf(buffer.rdbuf());
+	initSession();
+	processPage();
 
-	try {
-		processHeaders();
-		
-		std::string method( FCGX_GetParam("REQUEST_METHOD", mFcgiRequest->envp) );
-		if ( method.compare("OPTIONS") == 0 )
-			processOptions();
-		else
-		{
-			initSession();
-			processPage();
-		}
-
-		if (mSession && (mSession->isValid()) )
-			mSession->save();
-		if (mSession)
-		{
-			delete mSession;
-			mSession = 0;
-		}
-
-	} catch (std::exception &e) {
-		Log::info() << "Request::process Exception " << e.what() << Log::endl;
-	}
-
-	std::cout.rdbuf(backup);
-
-	FCGX_Stream *fout = mFcgiRequest->out;
-	FCGX_PutS(mResponseHeader.getHeader().c_str(), fout);
-	// fout << getResponseContent();
-	FCGX_PutS(buffer.str().c_str(), fout);
-}
-
-/*Page *Request::findPageByName(const std::string &name)
-{
-	for (unsigned int i = 0; i < mPlugins->size(); i++)
+	if (mSession && (mSession->isValid()) )
+		mSession->save();
+	if (mSession)
 	{
-		Module *mod = mPlugins->at(i);
-		for (int j = 0; j < mod->pageCount(); j++)
-		{
-			Page *pg = mod->getPage(j);
-			std::string pgUri = pg->getUri();
-			if (name.compare(0, pgUri.size(), pgUri) == 0)
-				return pg;
-		}
+		delete mSession;
+		mSession = 0;
 	}
-	return 0;
-}
-*/
+}*/
+
 std::string Request::getCookieByName(const std::string &name, bool allowEmpty = false)
 {
 	std::string value("");
@@ -131,6 +85,31 @@ std::string Request::getCookieByName(const std::string &name, bool allowEmpty = 
 	return value;
 }
 
+FCGX_Request *Request::getFCGX(void)
+{
+	return mFcgiRequest;
+}
+
+Request::Method Request::getMethod(void)
+{
+	//std::string method( FCGX_GetParam("REQUEST_METHOD", mFcgiRequest->envp) );
+	std::string method = getParam("REQUEST_METHOD");
+	if ( method.compare("OPTIONS") == 0 )
+		return Option;
+	else if ( method.compare("GET") == 0 )
+		return Get;
+	else if ( method.compare("POST") == 0 )
+		return Post;
+	else
+		return Undef;
+}
+
+std::string Request::getParam (const std::string &name)
+{
+	std::string param( FCGX_GetParam(name.c_str(), mFcgiRequest->envp) );
+	return param;
+}
+
 std::string Request::getUri(int n = 1)
 {
 	(void)n;
@@ -140,6 +119,7 @@ std::string Request::getUri(int n = 1)
 	return qs;
 }
 
+/*
 void Request::initSession(void)
 {
 	SessionCache *sc = ::SessionCache::getInstance();
@@ -184,71 +164,7 @@ void Request::initSession(void)
 
 	return;
 }
-
-void Request::processHeaders(void)
-{
-	// Process "Origin" header
-	std::string o( FCGX_GetParam("HTTP_ORIGIN", mFcgiRequest->envp) );
-	if ( ! o.empty() )
-		mResponseHeader.addHeader("Access-Control-Allow-Origin", o);
-
-	// Allow credentials control
-	mResponseHeader.addHeader("Access-Control-Allow-Credentials", "true");
-}
-
-void Request::processOptions(void)
-{
-	mResponseHeader.addHeader("Allow", "HEAD,GET,PUT,DELETE,OPTIONS");
-	mResponseHeader.addHeader("Access-Control-Allow-Headers", "access-control-allow-origin,x-requested-with");
-	
-	const char *c = FCGX_GetParam("HTTP_CORS_METHOD", mFcgiRequest->envp);
-	if (c)
-	{
-	        std::string allowMethod(c);
-        	mResponseHeader.addHeader("Access-Control-Allow-Method", allowMethod);
-        }
-}
-
-void Request::processPage()
-{
-	std::string uri;
-
-	uri = getUri(1);
-	
-	Log::info() << "[ " << mSession << "] request " << uri << Log::endl;
-	
-	// Search the requested page into modules
-	// GSG Page *pg = findPageByName(uri);
-	Page *pg = 0;
-	if (pg)
-	{
-		pg->setRequest( this );
-		pg->initReponse( &mResponseHeader );
-		pg->initSession( mSession );
-		pg->process();
-	}
-	// Else, requested page has not been found
-	else
-	{
-        Log::info() << "Not found " << Log::endl;
-		// Search if "404" page is available
-		// GSG pg = findPageByName("404");
-		pg = 0;
-		if (pg)
-		{
-			// Process and send "404"
-			pg->setRequest( this );
-			pg->initReponse( &mResponseHeader );
-			pg->initSession( mSession );
-			pg->process();
-		}
-		else
-		{
-			mResponseHeader.setRetCode(404, "Not found");
-			Log::info() << "[ " << mSession << "] Page not found." << Log::endl;
-		}
-	}
-}
+*/
 
 void Request::setPlugins(std::vector<Module *> *plugins)
 {
