@@ -92,9 +92,13 @@ void Response::setRequest(Request *request)
 	FCGX_Request *fcgi = mRequest->getFCGX();
 	
 	// Process "Origin" header
-	std::string o( FCGX_GetParam("HTTP_ORIGIN", fcgi->envp) );
-	if ( ! o.empty() )
-		mResponseHeader.addHeader("Access-Control-Allow-Origin", o);
+	const char *oh = FCGX_GetParam("HTTP_ORIGIN", fcgi->envp);
+	if (oh)
+	{
+		std::string o( oh );
+		if ( ! o.empty() )
+			mResponseHeader.addHeader("Access-Control-Allow-Origin", o);
+	}
 
 	// Allow credentials control
 	mResponseHeader.addHeader("Access-Control-Allow-Credentials", "true");
