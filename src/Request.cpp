@@ -106,8 +106,13 @@ Request::Method Request::getMethod(void)
 
 std::string Request::getParam (const std::string &name)
 {
-	std::string param( FCGX_GetParam(name.c_str(), mFcgiRequest->envp) );
-	return param;
+	std::string value;
+	
+	const char *p = FCGX_GetParam(name.c_str(), mFcgiRequest->envp);
+	if (p)
+		value = p;
+	
+	return value;
 }
 
 std::string Request::getUri(int n = 1)
