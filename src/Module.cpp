@@ -18,10 +18,64 @@
 #include "Router.hpp"
 #include "Page.hpp"
 
+/**
+ * @brief Default constructor
+ *
+ */
 Module::Module(void)
 {
 	mHandle = 0;
 }
+
+/**
+ * @brief Getter of the library handle
+ * @desc  Modules are dynamically loaded usind libdl. The pointer returned by
+ *        dlopen() is saved into Module object. This getHandle method is a
+ *        getter to read back the saved pointer.
+ * 
+ * @return void* Pointer to the library descriptor
+ */
+void *Module::getHandle(void)
+{
+	return mHandle;
+}
+
+/**
+ * @brief Getter for the module name
+ * @desc  Module Name is a human readable string used to identify the Module.
+ *        This value is mainly used into config file to link one (or more)
+ *        route to a page exposed by this module.
+ *
+ * @return string Name of the module
+ */
+std::string Module::getName(void)
+{
+	return mName;
+}
+
+/**
+ * @brief Setter for the library handle
+ * @desc  Modules are dynamically loaded usind libdl. This setHandle method is
+ *        used to save the pointer returned by dlopen().
+ *
+ * @param void* Pointer to the library descriptor
+ */
+void Module::setHandle(void *handle)
+{
+	mHandle = handle;
+}
+
+/**
+ * @brief Setter for the module name
+ *
+ * @param string Name of the module
+ */
+void Module::setName(const std::string &name)
+{
+	mName = name;
+}
+
+// ---------- Below, virtual methods used to specify Module interface ----------
 
 void Module::freePage(Page *page)
 {
@@ -33,39 +87,9 @@ void Module::initRouter(Router *router)
 	(void)router;
 }
 
-int Module::pageCount(void)
-{
-	return mPages.size();
-}
-
-Page *Module::getPage(int n)
-{
-	return mPages.at(n);
-}
-
 Page *Module::newPage(const std::string &name)
 {
 	(void)name;
 	return NULL;
-}
-
-void *Module::getHandle(void)
-{
-	return mHandle;
-}
-
-std::string Module::getName(void)
-{
-	return mName;
-}
-
-void Module::setHandle(void *handle)
-{
-	mHandle = handle;
-}
-
-void Module::setName(const std::string &name)
-{
-	mName = name;
 }
 /* EOF */

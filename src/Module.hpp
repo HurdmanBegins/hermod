@@ -16,32 +16,31 @@
 #define MODULE_HPP
 
 #include <string>
-#include <vector>
 
 class Page;
 class Router;
 
 using namespace std;
 
+/**
+ * Class used to handle modules
+ *
+ */
 class Module
 {
 public:
 	Module();
-
-	virtual void initRouter(Router *router);
-
-	Page  *newPage (const std::string &name);
-	void   freePage(Page *page);
-	
-	int   pageCount(void);
-	Page *getPage  (int n);
-	void *getHandle(void);
+	void  *getHandle(void);
 	string getName(void);
-	void  setHandle(void *handle);
+	void   setHandle(void *handle);
 	void   setName(const std::string &name);
+public:
+	virtual void  initRouter(Router *router);
+	virtual Page *newPage (const std::string &name);
+	virtual void  freePage(Page *page);
+
 protected:
 	void *mHandle;
 	std::string mName;
-	std::vector<Page *> mPages;
 };
 #endif
