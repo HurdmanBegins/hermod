@@ -42,7 +42,6 @@ public:
 	
 	virtual int process() = 0;
 protected:
-	std::string     mUri;
 	Request        *mRequest;
 	Response       *mResponse;
 	Session        *mSession;

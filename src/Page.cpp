@@ -14,12 +14,12 @@
  */
 #include <iostream>
 #include <string>
+#include "Log.hpp"
 #include "Page.hpp"
 #include "Request.hpp"
 
 Page::Page(void)
 {
-	mUri.clear();
 	mRequest  = 0;
 	mResponse = 0;
 	mSession  = 0;
@@ -47,15 +47,11 @@ void Page::setSession(Session *sess)
 	mSession = sess;
 }
 
-std::string Page::getUri(void)
-{
-	return mUri;
-}
-
 int    Page::getArgCount(void)
 {
 	return mArgs.size();
 }
+
 string Page::getArg(int n)
 {
 	return mArgs.at(n);
