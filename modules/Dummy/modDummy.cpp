@@ -1,0 +1,63 @@
+/*
+ * modDummy - An Hermod module for test and demo
+ *
+ * Copyright (c) 2016 Cowlab
+ *
+ * Hermod is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License 
+ * version 3 as published by the Free Software Foundation. You
+ * should have received a copy of the GNU Lesser General Public
+ * License along with this program, see LICENSE file for more details.
+ * This program is distributed WITHOUT ANY WARRANTY see README file.
+ *
+ * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
+ */
+#include <iostream>
+#include "Module.hpp"
+#include "Page.hpp"
+#include "modDummy.hpp"
+#include "PageHello.hpp"
+
+extern "C" Module* create_object()
+{
+	ModDummy *module;
+	module = new ModDummy;
+	
+	return module;
+}
+
+extern "C" void destroy_object(Module *module)
+{
+	delete module;
+}
+
+ModDummy::ModDummy()
+  : Module()
+{
+	// Set a name for this module
+	setName("Dummy");
+}
+
+void ModDummy::freePage(Page *page)
+{
+	if (page == NULL)
+		return;
+	delete page;
+}
+
+void ModDummy::initRouter(Router *router)
+{
+	RouteTarget *tgt = router->createTarget(this);
+	tgt->setName("hello");
+	tgt->enable();
+}
+
+Page *ModDummy::newPage(const std::string &name)
+{
+	Page *page = NULL;
+	
+	if (name.compare("hello") == 0)
+		page = new PageHello();
+	
+	return page;
+}
