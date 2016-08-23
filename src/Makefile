@@ -15,7 +15,7 @@
 TARGET = hermod
 SRC  = main.cpp App.cpp Config.cpp Log.cpp Module.cpp Request.cpp
 SRC += Router.cpp RouteTarget.cpp
-SRC += Page.cpp Session.cpp
+SRC += Page.cpp Session.cpp SessionCache.cpp
 SRC += Response.cpp ResponseHeader.cpp
 
 INSTALL="/usr/local"

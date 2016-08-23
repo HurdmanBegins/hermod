@@ -79,6 +79,8 @@ static void config(int argc, char **argv)
 		cfg->set("global",  "path_session", DEF_DIR_SESS);
 	if ( cfg->get("global", "log_file").empty() )
 		cfg->set("global", "log_file", DEF_LOG_FILE);
+	if ( cfg->get("global", "session_mode").empty() )
+		cfg->set("global", "session_mode", "cookie");
 	if ( cfg->get("plugins", "directory").empty() )
 		cfg->set("plugins", "directory", DEF_DIR_PLUGINS);
 }

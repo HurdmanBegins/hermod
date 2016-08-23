@@ -205,27 +205,4 @@ int Session::isAuth(void)
 	}
 	return 0;
 }
-
-// ----------  ----------
-
-SessionCache* SessionCache::mInstance = NULL;  
-
-SessionCache* SessionCache::getInstance()
-{
-	if ( ! mInstance)
-	{
-		mInstance = new SessionCache;
-	}
-	return mInstance;
-}
-
-SessionCache::SessionCache()
-{
-	//
-}
-
-Session *SessionCache::getById(const std::string &id)
-{
-	(void)id;
-	return 0;
-}
+/* EOF */

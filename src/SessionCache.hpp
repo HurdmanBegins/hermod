@@ -12,42 +12,30 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef PAGE_HPP
-#define PAGE_HPP
-
-#include <iostream>
+#ifndef SESSIONCACHE_HPP
+#define SESSIONCACHE_HPP
 #include <string>
-#include <sstream>
 #include <vector>
 
-#include "Response.hpp"
-#include "Session.hpp"
+class Session;
 
-class Request;
-
-using namespace std;
-
-class Page
+/**
+ * @class SessionCache
+ * @brief A global memory cache for Session
+ *
+ */
+class SessionCache
 {
 public:
-	Page();
-	void   setRequest(Request   *obj);
-	void   setReponse(Response  *obj);
-	void   initSession(void);
-	
-	std::string getUri(void);
-	
-	int    getArgCount(void);
-	string getArg(int n);
-	bool   useSession(void);
-public:	
-	virtual int process() = 0;
-protected:
-	bool      mUseSession;
-	Request  *mRequest;
-	Response *mResponse;
-	Session  *mSession;
+	static void destroy();
+	static SessionCache* getInstance();
+public:
+	Session *create (void);
+	Session *getById(const std::string &id);
 private:
-	vector<string> mArgs;
+	SessionCache();
+	static SessionCache   *mInstance;
+	std::vector<Session *> mCache;
 };
+
 #endif

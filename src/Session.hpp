@@ -19,18 +19,6 @@
 
 using namespace std;
 
-class Session;
-
-class SessionCache
-{
-public:
-	static SessionCache* getInstance();
-	Session *getById(const std::string &id);
-private:
-	SessionCache();
-	static SessionCache* mInstance;
-};
-
 class Session
 {
 public:

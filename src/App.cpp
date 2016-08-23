@@ -25,6 +25,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Router.hpp"
+#include "SessionCache.hpp"
 
 using namespace std;
 
@@ -95,7 +96,7 @@ void App::exec(void)
 						try {
 							page->setRequest( req );
 							page->setReponse( rsp );
-							//page->initSession( );
+							page->initSession();
 							page->process();
 						} catch (std::exception &e) {
 							Log::info() << "Request::process Exception " << e.what() << Log::endl;
@@ -152,6 +153,8 @@ void App::exec(void)
 		// Clear the local Router
 		delete mRouter;
 		mRouter = NULL;
+		// Clear the Session cache
+		SessionCache::destroy();
 		// Clear Config cache
 		Config::destroy();
 		// Clear Log layer
