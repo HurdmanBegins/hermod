@@ -13,8 +13,8 @@
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
 #include <stdexcept>
-#include "Log.hpp"
 #include "Request.hpp"
+#include "Log.hpp"
 
 using namespace std;
 
@@ -22,27 +22,12 @@ Request::Request(FCGX_Request *req)
 {
 	mFcgiRequest = req;
 	mPlugins = 0;
-	mSession = 0;
 }
 
 Request::~Request()
 {
-//	Log::info() << "~Request" << Log::endl;
+	// Nothing to do
 }
-
-/*void Request::process(void)
-{
-	initSession();
-	processPage();
-
-	if (mSession && (mSession->isValid()) )
-		mSession->save();
-	if (mSession)
-	{
-		delete mSession;
-		mSession = 0;
-	}
-}*/
 
 std::string Request::getCookieByName(const std::string &name, bool allowEmpty = false)
 {
@@ -92,7 +77,6 @@ FCGX_Request *Request::getFCGX(void)
 
 Request::Method Request::getMethod(void)
 {
-	//std::string method( FCGX_GetParam("REQUEST_METHOD", mFcgiRequest->envp) );
 	std::string method = getParam("REQUEST_METHOD");
 	if ( method.compare("OPTIONS") == 0 )
 		return Option;
@@ -124,54 +108,8 @@ std::string Request::getUri(int n = 1)
 	return qs;
 }
 
-/*
-void Request::initSession(void)
-{
-	SessionCache *sc = ::SessionCache::getInstance();
-
-	Session *sess = 0;
-	try {
-		std::string sessId = getCookieByName("HERMOD_SESSION", false);
- 		sess = sc->getById(sessId);
-		if (sess == 0)
-		{
-			Log::debug() << "getSession() " << sessId << " not in cache." << Log::endl;
-			sess = new Session();
-			sess->load(sessId);
-			if ( ! sess->isValid() )
-			{
-				Log::debug() << "getSession() " << sessId << " not valid too." << Log::endl;
-				delete sess;
-				sess = 0;
-			}
-		}
-	} catch (std::exception &e) {
-		Log::debug() << "getSession() Exception " << e.what() << Log::endl;
-		if (sess)
-		{
-		        delete sess;
-		        sess = 0;
-		}
-	}
-
-	try {
-		if (sess == 0)
-		{
-			sess = new Session();
-			sess->create();
-			mResponseHeader.addHeader("Set-Cookie", std::string("HERMOD_SESSION=") + sess->getId());
-		}
-	} catch (std::exception &e) {
-		Log::debug() << "getSession() " << e.what() << Log::endl;
-	}
-
-	mSession = sess;
-
-	return;
-}
-*/
-
 void Request::setPlugins(std::vector<Module *> *plugins)
 {
 	mPlugins = plugins;
 }
+/* EOF */

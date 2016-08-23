@@ -18,8 +18,6 @@
 #include <fcgio.h>
 #include "Module.hpp"
 #include "Page.hpp"
-#include "ResponseHeader.hpp"
-#include "Session.hpp"
 
 class Module;
 
@@ -30,19 +28,14 @@ public:
 public:
 	explicit Request(FCGX_Request *req);
 	~Request();
-//	void process(void);
 	void setPlugins(std::vector<Module *> *plugins);
 	FCGX_Request    *getFCGX  (void);
 	Request::Method  getMethod(void);
 	std::string      getParam (const std::string &name);
 	std::string getUri(int n);
-private:
 	std::string getCookieByName(const std::string &name, bool allowEmpty);
-//	void initSession(void);
 private:
 	FCGX_Request  *mFcgiRequest;
-	ResponseHeader mResponseHeader;
 	std::vector<Module *> *mPlugins;
-	Session       *mSession;
 };
 #endif
