@@ -29,9 +29,10 @@ Module::Module(void)
 
 /**
  * @brief Getter of the library handle
- * @desc  Modules are dynamically loaded usind libdl. The pointer returned by
- *        dlopen() is saved into Module object. This getHandle method is a
- *        getter to read back the saved pointer.
+ *
+ * Modules are dynamically loaded usind libdl. The pointer returned by dlopen()
+ * is saved into Module object. This getHandle method is a getter to read back
+ * the saved pointer.
  * 
  * @return void* Pointer to the library descriptor
  */
@@ -42,9 +43,10 @@ void *Module::getHandle(void)
 
 /**
  * @brief Getter for the module name
- * @desc  Module Name is a human readable string used to identify the Module.
- *        This value is mainly used into config file to link one (or more)
- *        route to a page exposed by this module.
+ *
+ * The module Name is a human readable string used to identify the Module. This
+ * value is mainly used into config file to link one (or more) route to a page
+ * exposed by this module.
  *
  * @return string Name of the module
  */
@@ -55,10 +57,11 @@ std::string Module::getName(void)
 
 /**
  * @brief Setter for the library handle
- * @desc  Modules are dynamically loaded usind libdl. This setHandle method is
- *        used to save the pointer returned by dlopen().
  *
- * @param void* Pointer to the library descriptor
+ * Modules are dynamically loaded usind libdl. This setHandle method is used to
+ * save the pointer returned by dlopen().
+ *
+ * @param handle Pointer to the library descriptor
  */
 void Module::setHandle(void *handle)
 {
@@ -68,7 +71,7 @@ void Module::setHandle(void *handle)
 /**
  * @brief Setter for the module name
  *
- * @param string Name of the module
+ * @param name String contains the name of the module
  */
 void Module::setName(const std::string &name)
 {

@@ -20,7 +20,7 @@
 /**
  * @brief Default constructor
  *
- * @param Request Pointer to a request associated with this response
+ * @param request Pointer to a Request associated with this response
  */
 Response::Response(Request *request)
 {
@@ -70,8 +70,8 @@ void Response::releaseCout(void)
 /**
  * @brief Send response to the remote FastCGI peer
  *
- * @desc This method is called at the end of process to send header and
- *       http data to the client.
+ * This method is called at the end of process to send header and http data to
+ * the client.
  */
 void Response::send(void)
 {
@@ -84,7 +84,7 @@ void Response::send(void)
 /**
  * @brief Set the request associated with this response into an HTTP transaction
  *
- * @param Request Pointer to the request
+ * @param request Pointer to the Request
  */
 void Response::setRequest(Request *request)
 {
