@@ -29,6 +29,9 @@ public:
 	static void destroy();
 	static Config* getInstance();
 	std::string get(const std::string &group, const std::string &key, size_t *pos = 0);
+	bool        getBool(const std::string &group,
+	                    const std::string &key,
+	                    bool  def);
 	ConfigKey  *getKey(const std::string &group, int index);
 	void set(const std::string &group,
 	         const std::string &key,

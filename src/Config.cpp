@@ -109,6 +109,38 @@ std::string Config::get(const std::string &group, const std::string &key, size_t
 	return k->getValue();
 }
 
+bool Config::getBool(const std::string &group,
+                     const std::string &key,
+                     bool  def)
+{
+	ConfigGroup *g = getGroup(group);
+	if (g == NULL)
+		return def;
+	
+	ConfigKey *k = g->getKey(key, 0);
+	if (k == NULL)
+		return def;
+	
+	std::string value = k->getValue();
+	if ( (value.compare("yes") == 0) ||
+	     (value.compare("YES") == 0) ||
+	     (value.compare("on")  == 0) ||
+	     (value.compare("ON")  == 0) )
+	{
+		return true;
+	}
+
+	if ( (value.compare("no")  == 0) ||
+	     (value.compare("NO")  == 0) ||
+	     (value.compare("off") == 0) ||
+	     (value.compare("OFF") == 0) )
+	{
+		return false;
+	}
+
+	return def;
+}
+
 ConfigKey *Config::getKey(const std::string &group, int index)
 {
 	ConfigGroup *g;
