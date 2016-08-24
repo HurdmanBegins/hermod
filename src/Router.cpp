@@ -47,7 +47,7 @@ RouteTarget *Router::find(Request *r)
 	ConfigKey   *k      = NULL;
 	Config      *cfg = Config::getInstance();
 	
-	std::string uri = r->getUri(1);
+	std::string uri = r->getUri(0);
 	
 	try {
 		for(int i = 0; ;++i)
@@ -98,10 +98,23 @@ RouteTarget *Router::find(Request *r)
 			target = *it;
 			break;
 		}
+		
+		if (target == NULL)
+		{
+			Log::info() << "Router: No target for the route (";
+			Log::info() << modName << ":" << pageName << ")" << Log::endl;
+		}
 
 	} catch (std::exception &e) {
 		Log::info() << "Router error: " << e.what() << Log::endl;
 		return NULL;
+	}
+
+	// If a valid route ; and a valid target found
+	if (k && target)
+	{
+		// Update Request URI and args
+		r->setUri( k->getName() );
 	}
 
 	return target;

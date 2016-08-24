@@ -37,17 +37,15 @@ public:
 	
 	std::string getUri(void);
 	
-	int    getArgCount(void);
-	string getArg(int n);
 	bool   useSession(void);
 public:	
+	virtual string getArg(int n);
+	virtual int getArgCount(void);
 	virtual int process() = 0;
 protected:
 	bool      mUseSession;
 	Request  *mRequest;
 	Response *mResponse;
 	Session  *mSession;
-private:
-	vector<string> mArgs;
 };
 #endif

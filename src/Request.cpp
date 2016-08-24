@@ -22,11 +22,31 @@ Request::Request(FCGX_Request *req)
 {
 	mFcgiRequest = req;
 	mPlugins = 0;
+
+	const char *u = FCGX_GetParam("QUERY_STRING", req->envp);
+	if (u)
+	{
+		std::string qs(u);
+		mUri.push_back( qs );
+	}
 }
 
 Request::~Request()
 {
 	// Nothing to do
+}
+
+unsigned int Request::countUriArgs(void)
+{
+	if (mUri.empty())
+		return 0;
+	
+	// Get the number of elements into Uri
+	unsigned int count = mUri.size();
+	// Decrement count to ignore arg(0) (route itself)
+	count--;
+	
+	return count;
 }
 
 std::string Request::getCookieByName(const std::string &name, bool allowEmpty = false)
@@ -99,17 +119,48 @@ std::string Request::getParam (const std::string &name)
 	return value;
 }
 
-std::string Request::getUri(int n = 1)
+std::string Request::getUri(unsigned int n = 0)
 {
-	(void)n;
-	const char *u = FCGX_GetParam("QUERY_STRING", mFcgiRequest->envp);
-	std::string qs(u);
+	std::string uri;
 	
-	return qs;
+	if (n < mUri.size())
+	{
+		uri = mUri.at(n);
+	}
+	
+	return uri;
 }
 
 void Request::setPlugins(std::vector<Module *> *plugins)
 {
 	mPlugins = plugins;
+}
+
+void Request::setUri(const std::string &route)
+{
+	if (mUri.size() == 0)
+		return;
+	
+	// Get full URI string
+	std::string args = getParam("QUERY_STRING");
+	// Keep only the tail (where args are)
+	args.erase(0, route.length());
+	if (args.length())
+	{
+		if (args[0] == '/')
+			args.erase(0, 1);
+	}
+	
+	mUri.clear();
+	mUri.push_back(route);
+	
+	std::istringstream qs( args );
+	for(std::string token; getline(qs, token, '/'); )
+		mUri.push_back(token);
+	
+	Log::info() << "setUri " << mUri.at(0);
+	Log::info() << "  route " << route;
+	Log::info() << "  args count  " << mUri.size();
+	Log::info() << "  args  " << args << Log::endl;
 }
 /* EOF */
