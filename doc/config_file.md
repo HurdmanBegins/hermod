@@ -40,8 +40,7 @@ Here, an example of the described structure (not a real config file) :
   big_key_name=some_value
 ```
 
-Full example
-------------
+### Real example
 
 ```
 [global]
@@ -55,3 +54,17 @@ Full example
 [mod:Files]
     root=/tmp
 ```
+
+Detailled description
+---------------------
+
+### Section global
+
+* **path_session** This key is used to set the directory where session files
+  are saved.
+* **log_file** This key allow to specify a file name for log messages. This
+  value should include the full path (like /var/log/hermod.cfg)
+
+### Section plugins
+
+### Section route

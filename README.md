@@ -9,6 +9,6 @@ be seen as a framework or as an application server.
 
 ## Documentation ##
 
-* [Hermod configuration file](config_file.md)
+* [Hermod configuration file](doc/config_file.md)
 
-* [How to use nginx as frontend](nginx.md)
+* [How to use nginx as frontend](doc/nginx.md)

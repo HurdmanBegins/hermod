@@ -19,10 +19,15 @@
 #include <cstddef> // std::size_t
 #include <vector>
 #include "config.h"
+#include "ConfigKey.hpp"
 
 class ConfigGroup;
-class ConfigKey;
 
+/**
+ * @class Config
+ * @brief This class define the main object to handle configuration keys
+ *
+ */
 class Config
 {
 public:
@@ -32,6 +37,10 @@ public:
 	bool        getBool(const std::string &group,
 	                    const std::string &key,
 	                    bool  def);
+	unsigned int getInt(const std::string &group,
+	                    const std::string &key,
+	                    bool  def);
+	ConfigKey  *getKey(const std::string &group, const std::string &key);
 	ConfigKey  *getKey(const std::string &group, int index);
 	void set(const std::string &group,
 	         const std::string &key,
@@ -62,22 +71,6 @@ public:
 private:
 	std::string mName;
 	std::vector<ConfigKey *> mKeys;
-};
-
-class ConfigKey
-{
-public:
-	ConfigKey();
-	std::string getName();
-	int         getPos();
-	std::string getValue();
-	void setName (const std::string &name);
-	void setPos  (int pos);
-	void setValue(const std::string &value);
-private:
-	std::string mName;
-	std::string mValue;
-	int mPos;
 };
 
 #endif

@@ -16,6 +16,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "Config.hpp"
+#include "ConfigKey.hpp"
 
 Config* Config::mInstance = NULL;  
 
@@ -109,38 +110,6 @@ std::string Config::get(const std::string &group, const std::string &key, size_t
 	return k->getValue();
 }
 
-bool Config::getBool(const std::string &group,
-                     const std::string &key,
-                     bool  def)
-{
-	ConfigGroup *g = getGroup(group);
-	if (g == NULL)
-		return def;
-	
-	ConfigKey *k = g->getKey(key, 0);
-	if (k == NULL)
-		return def;
-	
-	std::string value = k->getValue();
-	if ( (value.compare("yes") == 0) ||
-	     (value.compare("YES") == 0) ||
-	     (value.compare("on")  == 0) ||
-	     (value.compare("ON")  == 0) )
-	{
-		return true;
-	}
-
-	if ( (value.compare("no")  == 0) ||
-	     (value.compare("NO")  == 0) ||
-	     (value.compare("off") == 0) ||
-	     (value.compare("OFF") == 0) )
-	{
-		return false;
-	}
-
-	return def;
-}
-
 ConfigKey *Config::getKey(const std::string &group, int index)
 {
 	ConfigGroup *g;
@@ -151,6 +120,32 @@ ConfigKey *Config::getKey(const std::string &group, int index)
 		return NULL;
 	
 	return g->getKey(index);
+}
+
+/**
+ * @brief Get a key identified by his name (and a group name)
+ *
+ * @param group Name of the group where the key is present
+ * @param key   Name of the key search into this group
+ * @return ConfigKey* Pointer to the key (or NULL if not found)
+ */
+ConfigKey *Config::getKey(const std::string &group,
+                          const std::string &key)
+{
+	ConfigGroup *g;
+	ConfigKey   *k;
+	
+	// Get the specified group
+	g = getGroup(group);
+	if (g == NULL)
+		return NULL;
+
+	// Get the specified key into the group
+	k = g->getKey(key, 0);
+	if (k == NULL)
+		return NULL;
+	
+	return k;
 }
 
 void Config::load(const std::string &filename)
@@ -196,9 +191,6 @@ void Config::load(const std::string &filename)
 		ConfigKey *k = group->createKey(key, true);
 		// Save the specified value
 		k->setValue(value);
-		std::cerr << "Config load group=" << group->getName() << " ";
-		std::cerr << "key="   << key   << " ";
-		std::cerr << "value=" << value << std::endl;
 	}
 	cfgFile.close();
 }
@@ -258,12 +250,11 @@ ConfigKey *ConfigGroup::createKey(const std::string &name, bool multiple)
 	
 	// Create a new key
 	try {
-		key = new ConfigKey;
+		key = new ConfigKey(name);
 	} catch (std::exception& e) {
 		return NULL;
 	}
 	
-	key->setName(name);
 	mKeys.push_back(key);
 	
 	key->setPos(mKeys.size() - 1);
@@ -302,38 +293,4 @@ ConfigKey *ConfigGroup::getKey(unsigned int index)
 	
 	return mKeys.at(index);
 }
-
-// -------------------- KEYs -------------------- //
-ConfigKey::ConfigKey()
-{
-	mPos = 0;
-	mName.clear();
-	mValue.clear();
-}
-
-std::string ConfigKey::getName()
-{
-	return mName;
-}
-void ConfigKey::setName(const std::string &name)
-{
-	mName = name;
-}
-
-int ConfigKey::getPos(void)
-{
-	return mPos;
-}
-void ConfigKey::setPos(int pos)
-{
-	mPos = pos;
-}
-
-std::string ConfigKey::getValue()
-{
-	return mValue;
-}
-void ConfigKey::setValue(const std::string &value)
-{
-	mValue = value;
-}
+/* EOF */
