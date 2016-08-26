@@ -12,40 +12,30 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef PAGE_HPP
-#define PAGE_HPP
-
-#include <iostream>
+#ifndef CONFIGKEY_HPP
+#define CONFIGKEY_HPP
 #include <string>
-#include <sstream>
-#include <vector>
 
-#include "Response.hpp"
-#include "Session.hpp"
-
-class Request;
-
-using namespace std;
-
-class Page
+/**
+ * @class ConfigKey
+ * @brief This class allow to handle on configuration key
+ *
+ */
+class ConfigKey
 {
 public:
-	Page();
-	void   setRequest(Request   *obj);
-	void   setReponse(Response  *obj);
-	void   initSession(void);
-	
-	std::string getUri(void);
-	
-	bool   useSession(void);
-public:	
-	virtual string getArg(int n);
-	virtual int getArgCount(void);
-	virtual int process() = 0;
-protected:
-	bool      mUseSession;
-	Request  *mRequest;
-	Response *mResponse;
-	Session  *mSession;
+	explicit ConfigKey(const std::string &name);
+	bool        getBoolean(bool def);
+	int         getInteger(void);
+	std::string getName();
+	int         getPos();
+	std::string getValue();
+	void setPos  (int pos);
+	void setValue(const std::string &value);
+private:
+	std::string mName;
+	std::string mValue;
+	int mPos;
 };
+
 #endif

@@ -29,13 +29,16 @@ public:
 	explicit Request(FCGX_Request *req);
 	~Request();
 	void setPlugins(std::vector<Module *> *plugins);
+	unsigned int     countUriArgs(void);
 	FCGX_Request    *getFCGX  (void);
 	Request::Method  getMethod(void);
 	std::string      getParam (const std::string &name);
-	std::string getUri(int n);
+	std::string getUri(unsigned int n);
 	std::string getCookieByName(const std::string &name, bool allowEmpty);
+	void        setUri(const std::string &route);
 private:
 	FCGX_Request  *mFcgiRequest;
 	std::vector<Module *> *mPlugins;
+	std::vector<std::string> mUri;
 };
 #endif

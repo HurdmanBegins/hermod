@@ -21,21 +21,30 @@
 #include <netinet/in.h>
 #include "Session.hpp"
 
+/**
+ * @class LogCtrl
+ * @brief This class allow to create control-messages for log (ex: endl)
+ *
+ */
 class LogCtrl
 {
 public:
 	explicit LogCtrl(int type) { (void)type; }
 };
 
+/**
+ * @class LogStream
+ * @brief The LogStream objects are able to receive and store log datas
+ *
+ */
 class LogStream
 {
 public:
 	LogStream();
 	explicit LogStream(int level);
 	void append  (const std::string &msg);
-	void clear   (void);
-	std::string getBuffer(void);
 	int  getLevel(void);
+	void setBuffer(std::string *buffer);
 	void setLevel(int level);
 public:
 	friend LogStream& operator<<(LogStream &ls, const char msg[]);
@@ -44,12 +53,18 @@ public:
 	friend LogStream& operator<<(LogStream &ls, LogCtrl &ctrl);
 	friend LogStream& operator<<(LogStream &ls, struct in_addr &in);
 	friend LogStream& operator<<(LogStream &ls, Session *sess);
+	friend LogStream& operator<<(LogStream &ls, void *ptr);
 private:
 	int mLevel;
-	std::string mLine;
-	std::string mBuffer;
+	std::string  mLine;
+	std::string *mBuffer;
 };
 
+/**
+ * @class Log
+ * @brief A global logging system for Hermod
+ *
+ */
 class Log
 {
 public:
@@ -59,8 +74,10 @@ public:
 	static void setFile(const std::string &filename);
 	static void sync(void);
 public:
-	static LogStream &info (void);
-	static LogStream &debug(void);
+	static LogStream &error  (void);
+	static LogStream &warning(void);
+	static LogStream &info   (void);
+	static LogStream &debug  (void);
 protected:
 	void writeToFile(const std::string &msg);
 private:
@@ -72,7 +89,10 @@ private:
 private:
 	std::fstream mFile;
 	std::string  mFilename;
+	std::string  mBuffer;
 	LogStream    mDebug;
 	LogStream    mInfo;
+	LogStream    mWarning;
+	LogStream    mError;
 };
 #endif

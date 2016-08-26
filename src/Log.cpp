@@ -24,16 +24,39 @@
 Log *       Log::mInstance = NULL;
 LogCtrl     Log::endl(0);
 
+/**
+ * @brief Default (private) contructor for Log object
+ *
+ */
 Log::Log()
 {
-	mDebug.setLevel(10);
+	mBuffer.clear();
+	// Initialize 'error' stream
+	mError.setLevel(99);
+	mError.setBuffer( &mBuffer );
+	// Initialize 'warning' stream
+	mWarning.setLevel(30);
+	mWarning.setBuffer( &mBuffer );
+	// Initialize 'info' stream
 	mInfo.setLevel(20);
+	mInfo.setBuffer( &mBuffer );
+	// Initialize 'debug' stream
+	mDebug.setLevel(10);
+	mDebug.setBuffer( &mBuffer );
 }
 
+/**
+ * @brief Default destructor of Log objects
+ *
+ */
 Log::~Log()
 {
 }
 
+/**
+ * @brief Destroy the global Log cache
+ *
+ */
 void Log::destroy(void)
 {
 	if ( ! mInstance)
@@ -43,6 +66,15 @@ void Log::destroy(void)
 	mInstance = NULL;
 }
 
+/**
+ * @brief Get a pointer to the cache
+ *
+ * The Log system works with a single object into application. To allow only
+ * one instance (singleton) object constructor is private. This method is used
+ * to get access to this static, unique variable.
+ *
+ * @return Log* Pointer to the (singleton) cache object
+ */
 Log* Log::getInstance()
 {
 	if ( ! mInstance)
@@ -52,6 +84,15 @@ Log* Log::getInstance()
 	return mInstance;
 }
 
+/**
+ * @brief Get the debug stream
+ *
+ * The logging system is composed of serval streams. Each of them for a specific
+ * kind of messages (based on a level mechanism). This static method return the
+ * 'debug' stream of global Log.
+ *
+ * @return LogStream& Reference to debug stream
+ */
 LogStream &Log::debug(void)
 {
 	// Get the Log singleton object
@@ -60,6 +101,32 @@ LogStream &Log::debug(void)
 	return l->mDebug;
 }
 
+/**
+ * @brief Get the error stream
+ *
+ * The logging system is composed of serval streams. Each of them for a specific
+ * kind of messages (based on a level mechanism). This static method return the
+ * 'error' stream of global Log.
+ *
+ * @return LogStream& Reference to error stream
+ */
+LogStream &Log::error(void)
+{
+	// Get the Log singleton object
+	Log *l = getInstance();
+	// Return the error LogStream
+	return l->mError;
+}
+
+/**
+ * @brief Get the info stream
+ *
+ * The logging system is composed of serval streams. Each of them for a specific
+ * kind of messages (based on a level mechanism). This static method return the
+ * 'info' stream of global Log.
+ *
+ * @return LogStream& Reference to info stream
+ */
 LogStream &Log::info(void)
 {
 	// Get the Log singleton object
@@ -68,6 +135,27 @@ LogStream &Log::info(void)
 	return l->mInfo;
 }
 
+/**
+ * @brief Get the warning stream
+ *
+ * The logging system is composed of serval streams. Each of them for a specific
+ * kind of messages (based on a level mechanism). This static method return the
+ * 'warning' stream of global Log.
+ *
+ * @return LogStream& Reference to warning stream
+ */
+LogStream &Log::warning(void)
+{
+	// Get the Log singleton object
+	Log *l = getInstance();
+	// Return the warning LogStream
+	return l->mWarning;
+}
+
+/**
+ * @brief Set the file where logs must be written
+ *
+ */
 void Log::setFile(const std::string &filename)
 {
 	// Sanity check
@@ -93,20 +181,32 @@ void Log::setFile(const std::string &filename)
 	}
 }
 
+/**
+ * @brief Flush the messages from memory to output (file or standard output)
+ *
+ * For better performances, log messages are not directly written. All streams
+ * put datas into a global buffer into memory. This static method is used to
+ * request a flush from memory to target output.
+ */
 void Log::sync(void)
 {
-	std::ostringstream dat;
-	
 	Log *l = getInstance();
 
-	dat << l->mInfo.getBuffer();
 	if (l->mFile.is_open())
-		l->writeToFile(dat.str());
+		l->writeToFile(l->mBuffer);
 	else
-		std::cout << dat.str() << std::flush;
-	l->mInfo.clear();
+		std::cout << l->mBuffer << std::flush;
+	l->mBuffer.clear();
 }
 
+/**
+ * @brief Write data to log file
+ *
+ * When an output file is defined, this method is called (by sync) to write data
+ * on disk.
+ *
+ * @param msg Reference to log string
+ */
 void Log::writeToFile(const std::string &msg)
 {
 	mFile << msg;
@@ -117,12 +217,14 @@ void Log::writeToFile(const std::string &msg)
 
 LogStream::LogStream()
 {
+	mBuffer = 0;
+	mLevel  = 0;
 }
 
 LogStream::LogStream(int level)
 {
-	mLevel = level;
-	mBuffer.clear();
+	mBuffer = 0;
+	mLevel  = level;
 }
 
 void LogStream::append  (const std::string &msg)
@@ -130,19 +232,14 @@ void LogStream::append  (const std::string &msg)
 	mLine.append(msg);
 }
 
-void LogStream::clear(void)
-{
-	mBuffer.clear();
-}
-
-std::string LogStream::getBuffer(void)
-{
-	return mBuffer;
-}
-
 int  LogStream::getLevel(void)
 {
 	return(mLevel);
+}
+
+void LogStream::setBuffer(std::string *buffer)
+{
+	mBuffer = buffer;
 }
 
 void LogStream::setLevel(int level)
@@ -182,11 +279,24 @@ LogStream& operator<<(LogStream &ls, LogCtrl &ctrl)
 	time_t t = time(0);
 	struct tm * now = localtime(&t);
 	std::ostringstream oss;
+	// Insert timestamp
 	oss << std::setw(2) << std::setfill('0') << now->tm_hour << ":";
 	oss << std::setw(2) << std::setfill('0') << now->tm_min  << ":";
 	oss << std::setw(2) << std::setfill('0') << now->tm_sec  << " ";
+	// Insert the level code
+	if (ls.mLevel <= 10)
+		oss << "DBG ";
+	else if (ls.mLevel <= 20)
+		oss << "INF ";
+	else if (ls.mLevel <= 30)
+		oss << "WRN ";
+	else
+		oss << "ERR ";
+	// Insert the log line
 	oss << ls.mLine << "\n";
-	ls.mBuffer.append( oss.str() );
+	
+	if (ls.mBuffer)
+		ls.mBuffer->append( oss.str() );
 	ls.mLine.clear();
 	return ls;
 }
@@ -208,6 +318,16 @@ LogStream& operator<<(LogStream &ls, Session *sess)
 {
 	std::ostringstream oss;
 	oss << sess->getId() << " ";
+	ls.append(oss.str());
+	return ls;
+}
+
+LogStream& operator<<(LogStream &ls, void *ptr)
+{
+	const void * address = static_cast<const void*>(ptr);
+	
+	std::ostringstream oss;
+	oss << address << " ";
 	ls.append(oss.str());
 	return ls;
 }

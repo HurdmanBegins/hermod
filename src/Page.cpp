@@ -29,6 +29,35 @@ Page::Page(void)
 	mUseSession = false;
 }
 
+/**
+ * @brief Get Uri (or argument) of the request
+ *
+ * This method allow to get a part of the original URI, after analysis by
+ * router. The first item (n=0) contains the route, and other items (n>0)
+ * contains other words of the URI separated by '/'. This method is just a
+ * wrapper to Request object, and can be overloaded by specific page.
+ *
+ * @param n Position of the requested element (0 for uri)
+ * @return string Value of the requested element
+ */
+string Page::getArg(int n)
+{
+	return mRequest->getUri(n);
+}
+
+/**
+ * @brief Get the number of arguments found into the requested URI
+ *
+ * This method is just a wrapper to countUriArs() of Request object. Using this
+ * method instead of original is usefull when overload by a specific page.
+ *
+ * @return integer Number of arguments into URI
+ */
+int Page::getArgCount(void)
+{
+	return mRequest->countUriArgs();
+}
+
 void Page::initSession(void)
 {
 	// Test if this page require session
@@ -99,28 +128,11 @@ void Page::initSession(void)
 void Page::setRequest(Request *obj)
 {
 	mRequest = obj;
-	
-	// Clear args of a previous request (if any)
-	mArgs.clear();
-	// Compute the argument list
-	std::istringstream qs(obj->getParam("QUERY_STRING"));
-	for(std::string token; getline(qs, token, '/'); )
-		mArgs.push_back(token);
 }
 
 void Page::setReponse(Response *obj)
 {
 	mResponse = obj;
-}
-
-int    Page::getArgCount(void)
-{
-	return mArgs.size();
-}
-
-string Page::getArg(int n)
-{
-	return mArgs.at(n);
 }
 
 bool Page::useSession(void)
