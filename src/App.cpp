@@ -33,6 +33,8 @@ extern "C"
 void OS_LibShutdown(void);
 }
 
+App*  App::mAppInstance = NULL;
+
 App* App::getInstance()
 {
 	if ( ! mAppInstance)
