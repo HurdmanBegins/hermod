@@ -12,25 +12,35 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef PAGEFILE_HPP
-#define PAGEFILE_HPP
-
-#include "Page.hpp"
+#ifndef DIRECTORY_HPP
+#define DIRECTORY_HPP
+#include <vector>
+#include "File.hpp"
 
 namespace hermod {
 	namespace Files {
 
-class File;
-
-class PageFile: public Page
+/**
+ * @class Directory
+ * @brief This class inherit from File to handle directories
+ *
+ */
+class Directory : public File
 {
 public:
-	PageFile();
-	int process();
+	Directory();
+	explicit Directory(File &source);
+	~Directory();
+	File *at(int index);
+	void  clear(void);
+	int   count(void);
+protected:
+	void refresh(void);
 private:
-	void directoryListing(File &dirFile);
-	void fileDisplay(File &file);
+	bool mValidList;
+	std::vector<File *> mFiles;
 };
+
 	} // namespace Files
 } // namespace hermod
 #endif

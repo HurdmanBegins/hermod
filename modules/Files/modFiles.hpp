@@ -12,10 +12,15 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
+#ifndef MODFILES_HPP
+#define MODFILES_HPP
 #include "Module.hpp"
 #include "Router.hpp"
 
 class Page;
+
+namespace hermod {
+	namespace Files {
 
 class ModFiles : public Module
 {
@@ -25,3 +30,7 @@ public:
 	void   initRouter(Router *router);
 	Page  *newPage(const std::string &name);
 };
+
+	} // namespace Files
+} // namespace hermod
+#endif

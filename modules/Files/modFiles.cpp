@@ -20,8 +20,8 @@
 
 extern "C" Module* create_object()
 {
-	ModFiles *module;
-	module = new ModFiles;
+	hermod::Files::ModFiles *module;
+	module = new hermod::Files::ModFiles;
 	
 	return module;
 }
@@ -30,6 +30,9 @@ extern "C" void destroy_object(Module *module)
 {
 	delete module;
 }
+
+namespace hermod {
+	namespace Files {
 
 ModFiles::ModFiles()
   : Module()
@@ -63,3 +66,6 @@ Page *ModFiles::newPage(const std::string &name)
 
 	return page;
 }
+	} // namespace Files
+} // namespace hermod
+/* EOF */

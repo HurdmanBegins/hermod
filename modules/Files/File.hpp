@@ -12,25 +12,37 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef PAGEFILE_HPP
-#define PAGEFILE_HPP
-
-#include "Page.hpp"
+#ifndef FILE_HPP
+#define FILE_HPP
+#include <string>
 
 namespace hermod {
 	namespace Files {
-
-class File;
-
-class PageFile: public Page
+/**
+ * @class File
+ * @brief A generic class to handle files
+ *
+ */
+class File
 {
 public:
-	PageFile();
-	int process();
+	File();
+	void addPath(const std::string &path);
+	std::string getFullname(void);
+	std::string getName(void);
+	std::string getPath(void);
+	std::string getRoot(void);
+	bool isDirectory(void);
+	void setName(const std::string &name);
+	void setPath(const std::string &path);
+	void setRoot(const std::string &root);
 private:
-	void directoryListing(File &dirFile);
-	void fileDisplay(File &file);
+	bool mPermissivePath;
+	std::string mName;
+	std::string mPath;
+	std::string mRoot;
 };
+
 	} // namespace Files
 } // namespace hermod
 #endif

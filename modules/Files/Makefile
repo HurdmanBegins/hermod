@@ -13,7 +13,7 @@
  # Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  #
 TARGET=files.so
-SRC=modFiles.cpp PageFile.cpp
+SRC=modFiles.cpp PageFile.cpp File.cpp Directory.cpp
 
 CC=g++
 CP=cp
