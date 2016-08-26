@@ -19,16 +19,25 @@
 class App
 {
 public:
-	App (void);
 	void exec (void);
-	void init (void);
+	App * init (void);
 	void moduleAdd(Module *mod);
+	static App* getInstance();
 public:
 	static void sigInt(void);
 protected:
 	void moduleLoad  (const std::string &name);
 	void moduleUnload(int n);
 private:
+	App(){
+	  mRunning  = false;
+	  mFcgxSock = -1;
+	  mRouter   = NULL;
+	  mPlugins.clear();
+	  mSession  = NULL;
+	};
+private:
+    	static App*  mAppInstance;
 	bool         mRunning;
 	int          mFcgxSock;
 	Router      *mRouter;

@@ -31,7 +31,7 @@ COBJ = $(patsubst %, %,$(_COBJ))
 
 all: $(COBJ)
 	@echo "  [LD] $(TARGET)"
-	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(COBJ) $(DBOBJ)
+	@$(CC) $(CFLAGS) -o $(TARGET) $(COBJ) $(DBOBJ) $(LDFLAGS)
 
 install:
 	cp $(TARGET) $(INSTALL)/bin/

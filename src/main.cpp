@@ -29,8 +29,6 @@ int main(int argc, char **argv)
 
 	config(argc, argv);
 
-	App app;
-
 	// Initialise signal handler
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags   = 0;
@@ -38,8 +36,7 @@ int main(int argc, char **argv)
 	// Install signal handler
 	sigaction(SIGINT, &sa, NULL);
 
-	app.init();
-	app.exec();
+	App::getInstance()->init()->exec();
 
 	return(0);
 }
