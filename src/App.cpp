@@ -27,21 +27,19 @@
 #include "Router.hpp"
 #include "SessionCache.hpp"
 
-using namespace std;
-
 // Call to OS_LibShutdown() is needed to avoid fcgi leak
 extern "C"
 {
 void OS_LibShutdown(void);
 }
 
-App::App(void)
+App* App::getInstance()
 {
-	mRunning  = false;
-	mFcgxSock = -1;
-	mRouter   = NULL;
-	mPlugins.clear();
-	mSession  = NULL;
+	if ( ! mAppInstance)
+	{
+		mAppInstance = new App;
+	}
+	return mAppInstance;
 }
 
 void App::exec(void)
@@ -164,7 +162,7 @@ void App::exec(void)
 	}
 }
 
-void App::init(void)
+App* App::init(void)
 {
 	Config *cfg = Config::getInstance();
 	
@@ -201,6 +199,7 @@ void App::init(void)
 	Log::info() << "Hermod (FCGI) started socket=" << mFcgxSock << Log::endl;
 
 	Log::sync();
+	return getInstance();
 }
 
 void App::moduleAdd(Module *mod)
