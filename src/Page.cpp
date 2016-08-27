@@ -21,6 +21,8 @@
 #include "Session.hpp"
 #include "SessionCache.hpp"
 
+using namespace hermod;
+
 Page::Page(void)
 {
 	mRequest  = NULL;
@@ -56,6 +58,25 @@ string Page::getArg(int n)
 int Page::getArgCount(void)
 {
 	return mRequest->countUriArgs();
+}
+
+/**
+ * @brief Create a generic Content and insert it into Page Response
+ *
+ * @return Content* Pointer to the newly allocated Content
+ */
+Content *Page::initContent(void)
+{
+	if ( ! mResponse)
+		return NULL;
+	
+	Content *content = new Content();
+	if ( ! content)
+		throw runtime_error("Failed to allocate Content");
+	
+	mResponse->setContent(content);
+	
+	return content;
 }
 
 void Page::initSession(void)

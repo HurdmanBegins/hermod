@@ -18,6 +18,7 @@
 #include <sstream>
 #include <streambuf>
 #include "ResponseHeader.hpp"
+#include "Content.hpp"
 
 class Request;
 
@@ -27,14 +28,17 @@ class Request;
 class Response {
 public:
 	explicit Response(Request *request = NULL);
+	~Response();
 	ResponseHeader *header();
 	void catchCout  (void);
 	void releaseCout(void);
 	void send(void);
+	void setContent(hermod::Content *content);
 	void setRequest(Request *request);
 private:
 	Request          *mRequest;
-	ResponseHeader    mResponseHeader;
+	ResponseHeader    mHeader;
+	hermod::Content  *mContent;
 	std::streambuf   *mCoutBackup;
 	std::stringstream mCoutBuffer;
 };

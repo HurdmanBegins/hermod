@@ -24,10 +24,24 @@
  */
 Response::Response(Request *request)
 {
+	mContent     = 0;
 	mCoutBackup  = NULL;
 	mRequest     = NULL;
 	if (request)
 		setRequest(request);
+}
+
+/**
+ * @brief Defaut destructor
+ *
+ */
+Response::~Response()
+{
+	if (mContent)
+	{
+		delete mContent;
+		mContent = 0;
+	}
 }
 
 /**
@@ -51,7 +65,7 @@ void Response::catchCout(void)
  */
 ResponseHeader *Response::header(void)
 {
-	return &mResponseHeader;
+	return &mHeader;
 }
 
 /**
@@ -77,8 +91,31 @@ void Response::send(void)
 {
 	FCGX_Request *fcgi = mRequest->getFCGX();
 	FCGX_Stream *fout = fcgi->out;
-	FCGX_PutS(mResponseHeader.getHeader().c_str(), fout);
+	// Send Header
+	FCGX_PutS(mHeader.getHeader().c_str(), fout);
+	// Send Content
+	if (mContent)
+	{
+		const char *ptrContent = mContent->getCBuffer();
+		FCGX_PutStr(ptrContent, mContent->size(), fout);
+	}
+	// Send cout buffer
 	FCGX_PutS(mCoutBuffer.str().c_str(), fout);
+}
+
+/**
+ * @brief Set a content for this response
+ *
+ * This method allow to associate with this response an object that holds a
+ * buffer of datas. The life cycle of a response is longer than page or other
+ * objects that produce datas. To avoid data loss, response take control of the
+ * content after call of this method (must not be deleted elsewhere) !!
+ *
+ * @param content Pointer to the Content
+ */
+void Response::setContent(hermod::Content *content)
+{
+	mContent = content;
 }
 
 /**
@@ -97,10 +134,10 @@ void Response::setRequest(Request *request)
 	{
 		std::string o( oh );
 		if ( ! o.empty() )
-			mResponseHeader.addHeader("Access-Control-Allow-Origin", o);
+			mHeader.addHeader("Access-Control-Allow-Origin", o);
 	}
 
 	// Allow credentials control
-	mResponseHeader.addHeader("Access-Control-Allow-Credentials", "true");
+	mHeader.addHeader("Access-Control-Allow-Credentials", "true");
 }
 /* EOF */
