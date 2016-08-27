@@ -12,31 +12,30 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef CONTENT_HPP
-#define CONTENT_HPP
-#include <string>
+#ifndef CONTENTHTML_TAG_HPP
+#define CONTENTHTML_TAG_HPP
 #include <vector>
+#include "HtmlElement.hpp"
 
 namespace hermod {
+	namespace contentHtml {
 
 /**
- * @class Content
- * @brief This class define a generic data buffer used to hold content
+ * @class HtmlTag
+ * @brief Class to handle a "generic" HTML tag
  *
+ * Many HTML tags use the same format with a opening and a closing element. This
+ * class can be used to create an arbitrary tag : <tag>(some datas)</tag>
  */
-class Content {
+class HtmlTag : public HtmlElement {
 public:
-	Content();
-	virtual ~Content();
-	virtual void append(const std::string &str);
-	const char *getCBuffer(void);
-	int   size(void);
+	explicit HtmlTag(const std::string &tag);
+	void renderHead(void);
+	void renderTail(void);
 protected:
-	virtual void refresh(void);
-protected:
-	bool mValidBuffer;
-	std::vector<unsigned char> mBuffer;
+	std::string mTagName;
 };
 
+	} // namespace ContentHtml
 } // namespace hermod
 #endif

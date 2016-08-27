@@ -17,6 +17,8 @@ SRC  = main.cpp App.cpp Config.cpp ConfigKey.cpp Log.cpp Module.cpp Request.cpp
 SRC += Router.cpp RouteTarget.cpp
 SRC += Page.cpp Session.cpp SessionCache.cpp
 SRC += Content.cpp
+SRC += ContentHtml.cpp ContentHtml/HtmlElement.cpp ContentHtml/HtmlTag.cpp
+SRC += ContentHtml/HtmlHtml.cpp ContentHtml/HtmlH.cpp
 SRC += Response.cpp ResponseHeader.cpp
 
 INSTALL="/usr/local"
@@ -41,7 +43,7 @@ clean:
 	@echo "  [RM] $(TARGET) *.o"
 	@rm -f $(TARGET) $(COBJ)
 	@echo "  [RM] temporary files (*~)"
-	@rm -f *~
+	@rm -f *~ ContentHtml/*~
 
 $(COBJ) : %.o : %.cpp
 	@echo "  [CC] $@"

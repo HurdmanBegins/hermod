@@ -79,6 +79,22 @@ Content *Page::initContent(void)
 	return content;
 }
 
+ContentHtml *Page::initContentHtml(void)
+{
+	if ( ! mResponse)
+		return NULL;
+	
+	ContentHtml *content = new ContentHtml();
+	if ( ! content)
+		throw runtime_error("Failed to allocate ContentHtml");
+	
+	mResponse->setContent(content);
+	mResponse->header()->setContentType("text/html");
+	
+	return content;
+}
+
+
 void Page::initSession(void)
 {
 	// Test if this page require session

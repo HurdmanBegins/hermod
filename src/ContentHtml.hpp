@@ -12,30 +12,31 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef CONTENT_HPP
-#define CONTENT_HPP
-#include <string>
-#include <vector>
+#ifndef CONTENTHTML_HPP
+#define CONTENTHTML_HPP
+#include "Content.hpp"
+#include "ContentHtml/HtmlElement.hpp"
 
 namespace hermod {
 
+namespace contentHtml {
+class HtmlElement;
+}
+
 /**
- * @class Content
- * @brief This class define a generic data buffer used to hold content
+ * @class ContentHtml
+ * @brief This class id used to handle HTML content
  *
  */
-class Content {
+class ContentHtml : public Content {
 public:
-	Content();
-	virtual ~Content();
-	virtual void append(const std::string &str);
-	const char *getCBuffer(void);
-	int   size(void);
+	ContentHtml();
+	~ContentHtml();
+	contentHtml::HtmlElement *root(void);
 protected:
-	virtual void refresh(void);
-protected:
-	bool mValidBuffer;
-	std::vector<unsigned char> mBuffer;
+	void refresh(void);
+private:
+	contentHtml::HtmlElement *mRootElement;
 };
 
 } // namespace hermod

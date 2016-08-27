@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Content.hpp"
+#include "ContentHtml.hpp"
 #include "Response.hpp"
 #include "Session.hpp"
 
@@ -36,7 +37,8 @@ public:
 	void   setReponse(Response  *obj);
 	void   initSession(void);
 	
-	hermod::Content *initContent(void);
+	hermod::Content     *initContent(void);
+	hermod::ContentHtml *initContentHtml(void);
 	std::string getUri(void);
 	
 	bool   useSession(void);

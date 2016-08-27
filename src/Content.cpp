@@ -24,6 +24,7 @@ namespace hermod {
 Content::Content()
 {
 	mBuffer.clear();
+	mValidBuffer = true;
 }
 
 /**
@@ -54,6 +55,11 @@ void Content::append(const std::string &str)
  */
 const char *Content::getCBuffer(void)
 {
+	// If the internal buffer is invalid
+	if ( ! mValidBuffer)
+		// Refresh content
+		refresh();
+	
 	unsigned char *ptr = &mBuffer[0];
 	return (char *)ptr;
 }
@@ -65,7 +71,21 @@ const char *Content::getCBuffer(void)
  */
 int Content::size(void)
 {
+	// If the internal buffer is invalid
+	if ( ! mValidBuffer)
+		// Refresh content
+		refresh();
+	
 	return mBuffer.size();
+}
+
+/**
+ * @brief Request a reload/refresh of the internal buffer
+ *
+ */
+void Content::refresh(void)
+{
+	mValidBuffer = true;
 }
 
 } // namespace hermod

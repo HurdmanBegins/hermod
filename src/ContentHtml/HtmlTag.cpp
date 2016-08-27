@@ -12,31 +12,47 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef CONTENT_HPP
-#define CONTENT_HPP
 #include <string>
-#include <vector>
+#include <sstream>
+#include "HtmlTag.hpp"
 
 namespace hermod {
+	namespace contentHtml {
 
 /**
- * @class Content
- * @brief This class define a generic data buffer used to hold content
+ * @brief Constructor
+ *
+ * @param tag Name of the HTML tag
+ */
+HtmlTag::HtmlTag(const std::string &tag)
+{
+	mTagName = tag;
+}
+
+/**
+ * @brief Render the "head" of the tag
  *
  */
-class Content {
-public:
-	Content();
-	virtual ~Content();
-	virtual void append(const std::string &str);
-	const char *getCBuffer(void);
-	int   size(void);
-protected:
-	virtual void refresh(void);
-protected:
-	bool mValidBuffer;
-	std::vector<unsigned char> mBuffer;
-};
+void HtmlTag::renderHead(void)
+{
+	std::ostringstream ss;
+	ss << "<" << mTagName << ">";
+	
+	renderAppend(ss.str());
+}
 
+/**
+ * @brief Render the "tail" of the tag
+ *
+ */
+void HtmlTag::renderTail(void)
+{
+	std::ostringstream ss;
+	ss << "</" << mTagName << ">";
+	
+	renderAppend(ss.str());
+}
+
+	} // namespace ContentHtml
 } // namespace hermod
-#endif
+/* EOF */
