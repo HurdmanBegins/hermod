@@ -15,28 +15,50 @@
 #include <iostream>
 #include <string>
 #include "PageHello.hpp"
+#include "ContentHtml/HtmlHtml.hpp"
+#include "ContentHtml/HtmlH.hpp"
+#include "ContentHtml/HtmlTag.hpp"
 
+namespace hermod {
+	namespace Dummy {
+
+/**
+ * @brief Constructor of the page
+ *
+ */
 PageHello::PageHello(void)
     : Page()
 {
 	// Nothing to do
 }
 
+/**
+ * @brief This method is called when a request for this page is received
+ *
+ */
 int PageHello::process(void)
 {
-	mResponse->header()->setContentType("text/html");
-
-	cout << "<html>" << endl;
-	cout <<     "<head><title>Hello World</title></head>" << endl;
-	cout <<     "<body>" << endl;
+	// Use the Page layer to init this document as HTML page
+	ContentHtml *content = initContentHtml();
 	
-	if (getArgCount() == 1)
-		cout << "<h1>Hello World !</h1>" << endl;
+	// Create the "Hello World" message
+	std::string msg("Hello ");
+	if (getArgCount() == 0)
+		msg += "World";
 	else
-		cout << "<h1>Hello " << getArg(1) << " !</h1>" << endl;
+		msg += getArg(1);
+	msg += " !";
 	
-	cout <<     "</body>" << endl;
-	cout << "</html>" << endl;
+	// Create an HTML "h1" tag
+	contentHtml::HtmlH *h1 = new contentHtml::HtmlH(1);
+	// Insert the Hello message to the tag
+	h1->add(msg);
+	// Insert the h1 tag to the response body
+	content->root()->add(h1);
 	
 	return(0);
 }
+
+	} // namespace Dummy
+} // namespace hermod
+/* EOF */

@@ -57,7 +57,7 @@ Page *ModDummy::newPage(const std::string &name)
 	Page *page = NULL;
 	
 	if (name.compare("hello") == 0)
-		page = new PageHello();
+		page = new hermod::Dummy::PageHello();
 	
 	return page;
 }
