@@ -18,7 +18,7 @@ SRC += Router.cpp RouteTarget.cpp
 SRC += Page.cpp Session.cpp SessionCache.cpp
 SRC += Content.cpp
 SRC += ContentHtml.cpp ContentHtml/HtmlElement.cpp ContentHtml/HtmlTag.cpp
-SRC += ContentHtml/HtmlHtml.cpp ContentHtml/HtmlH.cpp
+SRC += ContentHtml/HtmlHtml.cpp ContentHtml/HtmlH.cpp ContentHtml/Template.cpp
 SRC += Response.cpp ResponseHeader.cpp
 
 INSTALL="/usr/local"
