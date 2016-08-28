@@ -85,6 +85,12 @@ void App::exec(void)
 			          (req->getMethod() == Request::Post) )
 			{
 				RouteTarget *route = mRouter->find(req);
+				if ( ! route)
+				{
+					Log::info() << "Request an unknown URL: ";
+					Log::info() << req->getUri(0) << Log::endl;
+					route = mRouter->find(":404:");
+				}
 				if (route)
 				{
 					Log::info() << "App: Found a route for this request " << Log::endl;
@@ -114,7 +120,7 @@ void App::exec(void)
 				}
 				else
 				{
-					Log::info() << "App: No route for this request :(" << Log::endl;
+					Log::info() << "No page in config for '404' error" << Log::endl;
 					rsp->header()->setRetCode(404, "Not found");
 				}
 			}

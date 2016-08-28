@@ -16,11 +16,17 @@
 #define ROUTER_HPP
 
 #include <vector>
+#include "Config.hpp"
 #include "RouteTarget.hpp"
 
 class Module;
 class Request;
 
+/**
+ * @class Router
+ * @brief The router class is used to amange a collection of URI <-> page pair
+ *
+ */
 class Router
 {
 public:
@@ -28,7 +34,12 @@ public:
 	~Router();
 	RouteTarget *createTarget(Module *module);
 	void removeTarget(RouteTarget *target);
+	RouteTarget *find(const std::string &uri);
 	RouteTarget *find(Request *r);
+protected:
+	ConfigKey   *findConfigRoute(const std::string &uri);
+	RouteTarget *findTarget(const std::string &module, const std::string &page);
+	RouteTarget *findTarget(const std::string &pair);
 private:
 	std::vector<RouteTarget *> mTargets;
 };
