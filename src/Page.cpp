@@ -79,6 +79,11 @@ Content *Page::initContent(void)
 	return content;
 }
 
+/**
+ * @brief Allocate an HTML content and define it as response content
+ *
+ * @return ContentHtml* Pointer to the newly allocated HTML content
+ */
 ContentHtml *Page::initContentHtml(void)
 {
 	if ( ! mResponse)
@@ -94,6 +99,25 @@ ContentHtml *Page::initContentHtml(void)
 	return content;
 }
 
+/**
+ * @brief Allocate a JSON content and define it as response content
+ *
+ * @return ContentJson* Pointer to the newly allocated JSON content
+ */
+ContentJson *Page::initContentJson(void)
+{
+	if ( ! mResponse)
+		return NULL;
+	
+	ContentJson *content = new ContentJson();
+	if ( ! content)
+		throw runtime_error("Failed to allocate ContentJson");
+	
+	mResponse->setContent(content);
+	mResponse->header()->setContentType("application/json");
+	
+	return content;
+}
 
 void Page::initSession(void)
 {
