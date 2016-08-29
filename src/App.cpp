@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 #include <dlfcn.h>  // dlopen() dlsym()
+#include <fcgios.h> // OS_IpcClose()
 
 #include "App.hpp"
 #include "Config.hpp"
@@ -35,6 +36,43 @@ void OS_LibShutdown(void);
 
 App*  App::mAppInstance = NULL;
 
+App::App()
+{
+	mRunning  = false;
+	mFcgxSock = -1;
+	mRouter   = NULL;
+	mPlugins.clear();
+	mSession  = NULL;
+}
+
+App::~App()
+{
+}
+
+/**
+ * @brief This method should be used to delete the App singleton
+ *
+ */
+void App::destroy(void)
+{
+	if ( ! mAppInstance)
+		return;
+
+	// Unload modules
+	while(mAppInstance->mPlugins.size())
+		mAppInstance->moduleUnload(mAppInstance->mPlugins.size() - 1);
+
+	// Close FCGI socket
+	OS_IpcClose(mAppInstance->mFcgxSock);
+	mAppInstance->mFcgxSock = -1;
+	// Free fcgi
+	OS_LibShutdown();
+
+	// Delete singleton object
+	delete mAppInstance;
+	mAppInstance = NULL;
+}
+
 App* App::getInstance()
 {
 	if ( ! mAppInstance)
@@ -44,7 +82,7 @@ App* App::getInstance()
 	return mAppInstance;
 }
 
-void App::exec(void)
+App* App::exec(void)
 {
 	FCGX_Request fcgiReq;
 	
@@ -150,12 +188,9 @@ void App::exec(void)
 		cout << e.what() << endl;
 	}
 	
+	FCGX_Free(&fcgiReq, 0);
+	
 	try {
-		// Free fcgi
-		OS_LibShutdown();
-		// Unload modules
-		while(mPlugins.size())
-			moduleUnload(mPlugins.size() - 1);
 		// Clear the local Router
 		delete mRouter;
 		mRouter = NULL;
@@ -168,6 +203,8 @@ void App::exec(void)
 	} catch(std::exception& e) {
 		// ToDo: handle error ? !
 	}
+	
+	return this;
 }
 
 App* App::init(void)

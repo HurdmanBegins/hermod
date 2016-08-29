@@ -37,6 +37,7 @@ int main(int argc, char **argv)
 	sigaction(SIGINT, &sa, NULL);
 
 	App::getInstance()->init()->exec();
+	App::destroy();
 
 	return(0);
 }
