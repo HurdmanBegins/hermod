@@ -17,11 +17,12 @@
 #include "Page.hpp"
 #include "modDummy.hpp"
 #include "PageHello.hpp"
+#include "PageHelloJson.hpp"
 
 extern "C" Module* create_object()
 {
-	ModDummy *module;
-	module = new ModDummy;
+	hermod::Dummy::ModDummy *module;
+	module = new hermod::Dummy::ModDummy;
 	
 	return module;
 }
@@ -30,6 +31,9 @@ extern "C" void destroy_object(Module *module)
 {
 	delete module;
 }
+
+namespace hermod {
+	namespace Dummy {
 
 ModDummy::ModDummy()
   : Module()
@@ -47,8 +51,14 @@ void ModDummy::freePage(Page *page)
 
 void ModDummy::initRouter(Router *router)
 {
-	RouteTarget *tgt = router->createTarget(this);
+	RouteTarget *tgt;
+	// Create a target for the "Hello World" page
+	tgt = router->createTarget(this);
 	tgt->setName("hello");
+	tgt->enable();
+	// Create a target for the Json version of "Hello World" page
+	tgt = router->createTarget(this);
+	tgt->setName("hello_json");
 	tgt->enable();
 }
 
@@ -57,7 +67,13 @@ Page *ModDummy::newPage(const std::string &name)
 	Page *page = NULL;
 	
 	if (name.compare("hello") == 0)
-		page = new hermod::Dummy::PageHello();
+		page = new PageHello();
+	else if (name.compare("hello_json") == 0)
+		page = new PageHelloJson();
 	
 	return page;
 }
+
+	} // namespace Dummy
+} // namespace hermod
+/* EOF */

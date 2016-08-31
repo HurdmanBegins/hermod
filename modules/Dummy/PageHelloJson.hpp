@@ -12,23 +12,19 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#ifndef MODDUMMY_HPP
-#define MODDUMMY_HPP
-#include "Module.hpp"
-#include "Router.hpp"
+#ifndef PAGEHELLOJSON_HPP
+#define PAGEHELLOJSON_HPP
 
-class Page;
+#include "Page.hpp"
 
 namespace hermod {
 	namespace Dummy {
 
-class ModDummy : public Module
+class PageHelloJson: public Page
 {
 public:
-	ModDummy();
-	void   freePage(Page *page);
-	void   initRouter(Router *router);
-	Page  *newPage(const std::string &name);
+	PageHelloJson();
+	int process();
 };
 
 	} // namespace Dummy
