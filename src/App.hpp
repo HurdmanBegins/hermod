@@ -29,6 +29,7 @@ public:
 protected:
 	void moduleLoad  (const std::string &name);
 	void moduleUnload(int n);
+	void processFcgi (void);
 private:
 	App();
 	~App();

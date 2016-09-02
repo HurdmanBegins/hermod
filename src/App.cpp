@@ -84,101 +84,32 @@ App* App::getInstance()
 
 App* App::exec(void)
 {
-	FCGX_Request fcgiReq;
-	
 	try {
-		FCGX_InitRequest(&fcgiReq, mFcgxSock, 0);
-		
 		mRunning = true;
 
 		while(mRunning)
 		{
-			Request  *req;
-			Response *rsp;
-			
-			if (FCGX_Accept_r(&fcgiReq) != 0)
-			{
-				Log::info() << "FastCGI interrupted during accept." << Log::endl;
-				Log::sync();
-				break;
-			}
-			// Instanciate a new Request
-			req = new Request( &fcgiReq );
-			req->setPlugins( &mPlugins );
-			// Instanciate a new Response
-			rsp = new Response( req );
-			
-			if (req->getMethod() == Request::Option)
-			{
-				Log::info() << "App: OPTION request received" << Log::endl;
-				
-				ResponseHeader *rh = rsp->header();
-				rh->addHeader("Allow", "HEAD,GET,PUT,DELETE,OPTIONS");
-				rh->addHeader("Access-Control-Allow-Headers", "access-control-allow-origin,x-requested-with");
-				std::string corsMethod = req->getParam("HTTP_CORS_METHOD");
-				if ( ! corsMethod.empty() )
-					rh->addHeader("Access-Control-Allow-Method", corsMethod);
-			}
-			else if ( (req->getMethod() == Request::Get) ||
-			          (req->getMethod() == Request::Post) )
-			{
-				RouteTarget *route = mRouter->find(req);
-				if ( ! route)
-				{
-					Log::info() << "Request an unknown URL: ";
-					Log::info() << req->getUri(0) << Log::endl;
-					route = mRouter->find(":404:");
-				}
-				if (route)
-				{
-					Log::info() << "App: Found a route for this request " << Log::endl;
-					Page *page = route->newPage();
-					if (page)
-					{
-						rsp->catchCout();
+			fd_set rfds;
+			struct timeval tv;
+			int retval;
 
-						try {
-							page->setRequest( req );
-							page->setReponse( rsp );
-							page->initSession();
-							page->process();
-						} catch (std::exception &e) {
-							Log::info() << "Request::process Exception " << e.what() << Log::endl;
-						}
+			FD_ZERO(&rfds);
+			FD_SET(mFcgxSock, &rfds);
 
-						rsp->releaseCout();
-
-						route->freePage(page);
-					}
-					else
-					{
-						Log::info() << "App: Failed to load target page" << Log::endl;
-						rsp->header()->setRetCode(404, "Not found");
-					}
-				}
-				else
-				{
-					Log::info() << "No page in config for '404' error" << Log::endl;
-					rsp->header()->setRetCode(404, "Not found");
-				}
-			}
-			else
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+			retval = select(mFcgxSock+1, &rfds, NULL, NULL, &tv);
+			if (retval > 0)
 			{
-				Log::info() << "App: Unknown method for this request :(" << Log::endl;
-				rsp->header()->setRetCode(404, "Not found");
+				if (FD_ISSET(mFcgxSock, &rfds) )
+					processFcgi();
+			}
+			else if (retval == 0)
+			{
+				// Case of timeout reserved for future use
+				continue;
 			}
 
-			rsp->send();
-
-			// Delete "Response" object at the end of the process
-			delete rsp;
-			rsp = NULL;
-			// Delete "Request" object at the end of the process
-			delete req;
-			req = 0;
-			
-			FCGX_Finish_r(&fcgiReq);
-			
 			// Flush Log
 			Log::sync();
 		} /* while */
@@ -187,8 +118,6 @@ App* App::exec(void)
 		cout << "App::exception " << endl;
 		cout << e.what() << endl;
 	}
-	
-	FCGX_Free(&fcgiReq, 0);
 	
 	try {
 		// Clear the local Router
@@ -318,8 +247,105 @@ void App::moduleUnload(int n)
 	}
 }
 
+void App::processFcgi (void)
+{
+	FCGX_Request fcgiReq;
+	Request  *req;
+	Response *rsp;
+	
+	FCGX_InitRequest(&fcgiReq, mFcgxSock, 0);
+	
+	if (FCGX_Accept_r(&fcgiReq) != 0)
+	{
+		Log::info() << "FastCGI interrupted during accept." << Log::endl;
+		Log::sync();
+		return;
+	}
+	// Instanciate a new Request
+	req = new Request( &fcgiReq );
+	req->setPlugins( &mPlugins );
+	// Instanciate a new Response
+	rsp = new Response( req );
+
+	if (req->getMethod() == Request::Option)
+	{
+		Log::info() << "App: OPTION request received" << Log::endl;
+		
+		ResponseHeader *rh = rsp->header();
+		rh->addHeader("Allow", "HEAD,GET,PUT,DELETE,OPTIONS");
+		rh->addHeader("Access-Control-Allow-Headers", "access-control-allow-origin,x-requested-with");
+		std::string corsMethod = req->getParam("HTTP_CORS_METHOD");
+		if ( ! corsMethod.empty() )
+			rh->addHeader("Access-Control-Allow-Method", corsMethod);
+	}
+	else if ( (req->getMethod() == Request::Get) ||
+	          (req->getMethod() == Request::Post) )
+	{
+		RouteTarget *route = mRouter->find(req);
+		if ( ! route)
+		{
+			Log::info() << "Request an unknown URL: ";
+			Log::info() << req->getUri(0) << Log::endl;
+			route = mRouter->find(":404:");
+		}
+		if (route)
+		{
+			Log::info() << "App: Found a route for this request " << Log::endl;
+			Page *page = route->newPage();
+			if (page)
+			{
+				rsp->catchCout();
+
+				try {
+					page->setRequest( req );
+					page->setReponse( rsp );
+					page->initSession();
+					page->process();
+				} catch (std::exception &e) {
+					Log::info() << "Request::process Exception " << e.what() << Log::endl;
+				}
+
+				rsp->releaseCout();
+
+				route->freePage(page);
+			}
+			else
+			{
+				Log::info() << "App: Failed to load target page" << Log::endl;
+				rsp->header()->setRetCode(404, "Not found");
+			}
+		}
+		else
+		{
+			Log::info() << "No page in config for '404' error" << Log::endl;
+			rsp->header()->setRetCode(404, "Not found");
+		}
+	}
+	else
+	{
+		Log::info() << "App: Unknown method for this request :(" << Log::endl;
+		rsp->header()->setRetCode(404, "Not found");
+	}
+
+	rsp->send();
+
+	// Delete "Response" object at the end of the process
+	delete rsp;
+	rsp = NULL;
+	// Delete "Request" object at the end of the process
+	delete req;
+	req = 0;
+	
+	FCGX_Finish_r(&fcgiReq);
+
+	FCGX_Free(&fcgiReq, 0);
+}
+
 void App::sigInt(void)
 {
+	if (mAppInstance)
+		mAppInstance->mRunning = false;
+	
 	FCGX_ShutdownPending();
 }
 
