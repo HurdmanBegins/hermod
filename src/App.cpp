@@ -167,9 +167,22 @@ App* App::init(void)
 		pos++;
 	}
 
-	// Initialize FCGI library
-	FCGX_Init();
-	mFcgxSock = FCGX_OpenSocket(":9000", 4);
+	// Open FCGI socket
+	try {
+		std::string fcgiPort(":");
+		// Initialize library
+		FCGX_Init();
+		// Define the TCP port to listen
+		ConfigKey *keyPort = cfg->getKey("global", "port");
+		if (keyPort)
+			fcgiPort += keyPort->getValue();
+		else
+			fcgiPort += "9000";
+		// Open the FCGI socket
+		mFcgxSock = FCGX_OpenSocket(fcgiPort.c_str(), 4);
+	} catch (...) {
+		// ToDo: handle error
+	}
 	Log::info() << "Hermod (FCGI) started socket=" << mFcgxSock << Log::endl;
 
 	Log::sync();
