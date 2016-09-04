@@ -60,11 +60,20 @@ Detailled description
 
 ### Section global
 
-* **path_session** This key is used to set the directory where session files
-  are saved.
+* **daemon** This parameter is used to specify if hermod run in background
+  (as a daemon) or not. A boolean value should be set (on/off or yes/no).
+  The default value is "on".
 * **log_file** This key allow to specify a file name for log messages. This
   value should include the full path (like /var/log/hermod.cfg)
+* **path_session** This key is used to set the directory where session files
+  are saved.
+* **port** This parameter define the port number for the FCgi server socket.
 
 ### Section plugins
+
+* **directory** This parameter set the base directory where hermod will
+  search plugins.
+* **load** This parameter add a file name to this list of plugins. This is a
+  single value parameter, one "load" must be used for each plugin.
 
 ### Section route
