@@ -24,9 +24,9 @@ namespace hermod {
  *
  * @param tag Name of the HTML tag
  */
-HtmlTag::HtmlTag(const std::string &tag)
+HtmlTag::HtmlTag(const std::string &tag) : mTagName(tag)
 {
-	mTagName = tag;
+	// Nothing to do here
 }
 
 /**

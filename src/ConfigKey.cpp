@@ -19,10 +19,9 @@
  * @brief Default constructor for a config key object
  *
  */
-ConfigKey::ConfigKey(const std::string &name)
+ConfigKey::ConfigKey(const std::string &name) : mName(name)
 {
 	mPos  = 0;
-	mName = name;
 	mValue.clear();
 }
 

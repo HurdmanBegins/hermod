@@ -30,6 +30,9 @@ CFLAGS   = -Wall -Wextra -Wuninitialized -Wunused-label -Wunused-value -Wunused-
 CFLAGS  += -DINSTALL=\"$(INSTALL)\"
 LDFLAGS  = -lfcgi -lfcgi++
 LDFLAGS += -ldl -rdynamic
+CHECK  = --enable=warning
+CHECK += --enable=performance
+CHECK += --enable=style
 
 _COBJ =  $(SRC:.cpp=.o)
 COBJ = $(patsubst %, %,$(_COBJ))
@@ -41,6 +44,10 @@ all: $(COBJ)
 install:
 	cp $(TARGET) $(INSTALL)/bin/
 
+check:
+	@echo "  [CPPCHECK] ."
+	cppcheck $(CHECK) --quiet .
+	
 clean:
 	@echo "  [RM] $(TARGET) *.o"
 	@rm -f $(TARGET) $(COBJ)
