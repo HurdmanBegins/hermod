@@ -12,11 +12,13 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
+#ifndef APP_HPP
+#define APP_HPP
 #include "ModuleCache.hpp"
 #include "Router.hpp"
 #include "Session.hpp"
 
-using namespace  hermod;
+namespace hermod {
 
 class App
 {
@@ -40,3 +42,6 @@ private:
 	Session     *mSession;
 	ModuleCache  mModuleCache;
 };
+
+} // namespace hermod
+#endif

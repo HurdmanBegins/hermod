@@ -19,8 +19,11 @@
 #include "Config.hpp"
 #include "RouteTarget.hpp"
 
-class Module;
 class Request;
+
+namespace hermod {
+
+class Module;
 
 /**
  * @class Router
@@ -43,4 +46,6 @@ protected:
 private:
 	std::vector<RouteTarget *> mTargets;
 };
+
+} // namespace hermod
 #endif

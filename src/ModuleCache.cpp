@@ -67,6 +67,7 @@ Module * ModuleCache::load(const std::string &name)
 	}
 	
 	newModule->setHandle(handle);
+	newModule->setCache( this );
 	
 	mModules.push_back(newModule);
 	

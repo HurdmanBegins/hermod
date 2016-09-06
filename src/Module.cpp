@@ -18,13 +18,16 @@
 #include "Router.hpp"
 #include "Page.hpp"
 
+namespace hermod {
+
 /**
  * @brief Default constructor
  *
  */
-Module::Module(void)
+Module::Module(ModuleCache *cache)
 {
-	mHandle = 0;
+	mHandle  = 0;
+	mModules = cache;
 }
 
 /**
@@ -53,6 +56,16 @@ void *Module::getHandle(void)
 std::string Module::getName(void)
 {
 	return mName;
+}
+
+/**
+ * @brief Set the ModuleCache where this module is registered
+ *
+ * @param cache Pointer to the parent ModuleCache
+ */
+void Module::setCache (ModuleCache *cache)
+{
+	mModules = cache;
 }
 
 /**
@@ -95,4 +108,6 @@ Page *Module::newPage(const std::string &name)
 	(void)name;
 	return NULL;
 }
+
+} // namespace hermod
 /* EOF */

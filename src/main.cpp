@@ -47,8 +47,8 @@ int main(int argc, char **argv)
 	sigaction(SIGINT,  &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 
-	App::getInstance()->init()->exec();
-	App::destroy();
+	hermod::App::getInstance()->init()->exec();
+	hermod::App::destroy();
 
 	return(0);
 }
@@ -167,8 +167,8 @@ static void daemonize(void)
 static void signal_handler(int sig)
 {
 	if (sig == SIGINT)
-		App::sigInt();
+		hermod::App::sigInt();
 	if (sig == SIGTERM)
-		App::sigInt();
+		hermod::App::sigInt();
 }
 /* EOF */

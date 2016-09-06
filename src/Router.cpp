@@ -17,6 +17,8 @@
 #include "Router.hpp"
 #include "Request.hpp"
 
+namespace hermod {
+
 /**
  * @brief Default constructor for a Router
  *
@@ -244,4 +246,6 @@ void Router::removeTarget(RouteTarget *target)
 		break;
 	}
 }
+
+} // namespace hermod
 /* EOF */

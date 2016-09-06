@@ -18,9 +18,13 @@
 #include <string>
 
 class Page;
-class Router;
 
 using namespace std;
+
+namespace hermod {
+
+class Router;
+class ModuleCache;
 
 /**
  * Class used to handle modules
@@ -29,9 +33,10 @@ using namespace std;
 class Module
 {
 public:
-	Module();
+	Module(ModuleCache *cache = 0);
 	void  *getHandle(void);
 	string getName(void);
+	void   setCache (ModuleCache *cache);
 	void   setHandle(void *handle);
 	void   setName(const std::string &name);
 public:
@@ -42,5 +47,8 @@ public:
 protected:
 	void *mHandle;
 	std::string mName;
+	ModuleCache *mModules;
 };
+
+} // namespace hermod
 #endif
