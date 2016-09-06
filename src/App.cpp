@@ -17,7 +17,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <dlfcn.h>  // dlopen() dlsym()
 #include <fcgios.h> // OS_IpcClose()
 
 #include "App.hpp"
@@ -41,7 +40,6 @@ App::App()
 	mRunning  = false;
 	mFcgxSock = -1;
 	mRouter   = NULL;
-	mPlugins.clear();
 	mSession  = NULL;
 }
 
@@ -59,9 +57,11 @@ void App::destroy(void)
 		return;
 
 	// Unload modules
-	while(mAppInstance->mPlugins.size())
-		mAppInstance->moduleUnload(mAppInstance->mPlugins.size() - 1);
+	mAppInstance->mModuleCache.clear();
 
+	// Clear Log layer
+	Log::destroy();
+	
 	// Close FCGI socket
 	OS_IpcClose(mAppInstance->mFcgxSock);
 	mAppInstance->mFcgxSock = -1;
@@ -127,8 +127,6 @@ App* App::exec(void)
 		SessionCache::destroy();
 		// Clear Config cache
 		Config::destroy();
-		// Clear Log layer
-		Log::destroy();
 	} catch(std::exception& e) {
 		// ToDo: handle error ? !
 	}
@@ -163,7 +161,12 @@ App* App::init(void)
 		if (name.empty())
 			break;
 		// Try to load the specified module
-		moduleLoad( name );
+		Module *newModule = mModuleCache.load( name );
+		if (newModule)
+		{
+			newModule->initRouter(mRouter);
+			Log::info() << "Load module " << name << Log::endl;
+		}
 		pos++;
 	}
 
@@ -189,77 +192,6 @@ App* App::init(void)
 	return getInstance();
 }
 
-void App::moduleAdd(Module *mod)
-{
-        mPlugins.push_back(mod);
-}
-
-void App::moduleLoad(const std::string &name)
-{
-	Config *cfg = Config::getInstance();
-
-	std::string dir = cfg->get("plugins", "directory");
-	dir += name;
-
-	void *handle = dlopen(dir.c_str(), RTLD_NOW|RTLD_GLOBAL);
-	if (handle == 0)
-	{
-		Log::info() << "Load module " << name << " ";
-		Log::info() << "failed : " << dlerror() << Log::endl;
-		return;
-	}
-	
-	Module *newModule;
-	try {
-		Module *(*create)(void);
-	
-		create = (Module*(*)(void))dlsym(handle, "create_object");
-		if (create == 0)
-			throw std::runtime_error("init function missing");
-	
-		newModule = create();
-		if (newModule == 0)
-			throw std::runtime_error("Create failed");
-
-		newModule->initRouter(mRouter);
-	} catch (std::exception &e) {
-		Log::info() << "Load module " << name << " ";
-		Log::info() << "failed : " << e.what() << Log::endl;
-		dlclose(handle);
-		return;
-	}
-	Log::info() << "Load module " << name << Log::endl;
-	
-	newModule->setHandle(handle);
-	mPlugins.push_back(newModule);
-}
-
-
-void App::moduleUnload(int n)
-{
-	Module *mod;
-
-	try {
-		void (*destroy)(Module*);
-		
-		mod = mPlugins.at(n);
-		void *handle = mod->getHandle();
-		destroy = (void(*)(Module*))dlsym(handle, "destroy_object");
-		if (destroy == 0)
-			throw std::runtime_error("Destroy failed");
-		
-		// Remove the Module from plugins -first-
-		mPlugins.erase( mPlugins.begin() + n);
-		// Then, destroy the plugin
-		destroy(mod);
-		// Unload/close the lib
-		dlclose(handle);
-	} catch (std::exception &e) {
-		cerr << "MOD: " << e.what() << endl;
-		return;
-	}
-}
-
 void App::processFcgi (void)
 {
 	FCGX_Request fcgiReq;
@@ -276,7 +208,7 @@ void App::processFcgi (void)
 	}
 	// Instanciate a new Request
 	req = new Request( &fcgiReq );
-	req->setPlugins( &mPlugins );
+	req->setModules( &mModuleCache );
 	// Instanciate a new Response
 	rsp = new Response( req );
 

@@ -12,31 +12,29 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#include "ModuleCache.hpp"
-#include "Router.hpp"
-#include "Session.hpp"
+#ifndef MODULECACHE_HPP
+#define MODULECACHE_HPP
+#include "Module.hpp"
+#include <vector>
 
-using namespace  hermod;
+namespace hermod {
 
-class App
+/**
+ * @class ModuleCache
+ * @brief This class is used to load/unload additional modules
+ *
+ */
+class ModuleCache
 {
 public:
-	static void destroy();
-	App * exec (void);
-	App * init (void);
-	static App* getInstance();
-public:
-	static void sigInt(void);
-protected:
-	void processFcgi (void);
+	ModuleCache();
+	~ModuleCache();
+	void   clear(void);
+	Module *load(const std::string &name);
+	void  unload(int );
 private:
-	App();
-	~App();
-private:
-    	static App*  mAppInstance;
-	bool         mRunning;
-	int          mFcgxSock;
-	Router      *mRouter;
-	Session     *mSession;
-	ModuleCache  mModuleCache;
+	std::vector<Module *> mModules;
 };
+
+} // namespace hermod
+#endif
