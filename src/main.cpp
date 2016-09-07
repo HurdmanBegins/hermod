@@ -21,6 +21,8 @@
 #include "App.hpp"
 #include "Config.hpp"
 
+using namespace hermod;
+
 static void config(int argc, char **argv);
 static void daemonize(void);
 static void signal_handler(int sig);

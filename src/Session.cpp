@@ -23,6 +23,7 @@
 #include "Config.hpp"
 #include "Session.hpp"
 
+using namespace hermod;
 using namespace std;
 
 Session::Session()
