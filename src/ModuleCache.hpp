@@ -29,9 +29,10 @@ class ModuleCache
 public:
 	ModuleCache();
 	~ModuleCache();
-	void   clear(void);
-	Module *load(const std::string &name);
-	void  unload(int );
+	void    clear(void);
+	Module *find (const std::string &name);
+	Module *load (const std::string &name);
+	void     unload(int );
 private:
 	std::vector<Module *> mModules;
 };

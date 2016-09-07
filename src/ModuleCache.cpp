@@ -19,18 +19,52 @@
 
 namespace hermod {
 
+/**
+ * @brief Default constructor
+ *
+ */
 ModuleCache::ModuleCache()
 {
 }
 
+/**
+ * @brief Default destructor
+ *
+ */
 ModuleCache::~ModuleCache()
 {
 }
 
+/**
+ * @brief Unload all modules of this cache
+ *
+ */
 void ModuleCache::clear(void)
 {
 	while( mModules.size() )
 		unload( mModules.size() - 1 );
+}
+
+/**
+ * @brief Find a module identified by his name
+ *
+ * @return Module* Pointer to the module object (or NULL)
+ */
+Module *ModuleCache::find(const std::string &name)
+{
+	Module *module = 0;
+	
+	std::vector<Module *>::iterator it;
+	for (it = mModules.begin(); it != mModules.end(); ++it)
+	{
+		if (name.compare( (*it)->getName() ) == 0)
+		{
+			module = *it;
+			break;
+		}
+	}
+	
+	return module;
 }
 
 Module * ModuleCache::load(const std::string &name)

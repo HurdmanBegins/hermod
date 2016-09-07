@@ -31,6 +31,24 @@ Module::Module(ModuleCache *cache)
 }
 
 /**
+ * @brief Get access to the cache that manage this module
+ *
+ * To easily manage module, they can be put into a "cache" object. This cache
+ * is able to create, load (and unload) them and maintain a list of known
+ * modules. This getter method allow to get a pointer to the cache that "own"
+ * the current object.
+ *
+ * @return ModuleCache* Pointer to the parent cache
+ */
+ModuleCache *Module::getCache(void)
+{
+	if (mModules == 0)
+		throw 1;
+	
+	return mModules;
+}
+
+/**
  * @brief Getter of the library handle
  *
  * Modules are dynamically loaded usind libdl. The pointer returned by dlopen()

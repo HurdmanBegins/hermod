@@ -33,7 +33,7 @@ class ModuleCache;
 class Module
 {
 public:
-	Module(ModuleCache *cache = 0);
+	explicit Module(ModuleCache *cache = 0);
 	void  *getHandle(void);
 	string getName(void);
 	void   setCache (ModuleCache *cache);
@@ -44,6 +44,8 @@ public:
 	virtual Page *newPage (const std::string &name);
 	virtual void  freePage(Page *page);
 
+protected:
+	ModuleCache *getCache(void);
 protected:
 	void *mHandle;
 	std::string mName;
