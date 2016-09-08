@@ -15,6 +15,8 @@
 #include <cstdlib>
 #include "ConfigKey.hpp"
 
+namespace hermod {
+
 /**
  * @brief Default constructor for a config key object
  *
@@ -121,4 +123,5 @@ void ConfigKey::setValue(const std::string &value)
 	mValue = value;
 }
 
+} // namespace hermod
 /* EOF */

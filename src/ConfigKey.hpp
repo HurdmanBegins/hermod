@@ -16,6 +16,8 @@
 #define CONFIGKEY_HPP
 #include <string>
 
+namespace hermod {
+
 /**
  * @class ConfigKey
  * @brief This class allow to handle on configuration key
@@ -38,4 +40,5 @@ private:
 	int mPos;
 };
 
+} // namespace hermod
 #endif

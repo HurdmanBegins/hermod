@@ -15,45 +15,129 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <sys/stat.h>
 #include "Config.hpp"
 #include "ConfigKey.hpp"
+#include "Log.hpp"
+
+namespace hermod {
 
 Config* Config::mInstance = NULL;  
 
+/**
+ * @brief Delete the global config instance (singleton)
+ *
+ */
 void Config::destroy(void)
 {
 	if ( ! mInstance)
 		return;
-	// Delete all config groups
-	while( mInstance->mGroups.size() )
-	{
-		ConfigGroup *g = mInstance->mGroups.back();
-		mInstance->mGroups.pop_back();
-		delete g;
-	}
+
 	// Delete singleton object
 	delete mInstance;
 	mInstance = NULL;
 }
 
-Config* Config::getInstance()
+/**
+ * @brief Default (private) destructor
+ *
+ * The default destructor is private to avoid deleting the singleton. To delete
+ * config, the static destroy() method must be called.
+ */
+Config::~Config()
+{
+	// Delete all config groups
+	while( mGroups.size() )
+	{
+		ConfigGroup *g = mGroups.back();
+		mGroups.pop_back();
+		delete g;
+	}
+
+	// Delete sub-config files
+	while( mFiles.size() )
+	{
+		Config *cfg = mFiles.back();
+		mFiles.pop_back();
+		delete cfg;
+	}
+}
+
+/**
+ * @brief Get (or create) the global configuration object
+ *
+ * @return Config* Pointer to the global config
+ */
+Config* Config::getInstance(void)
 {
 	if ( ! mInstance)
 	{
 		mInstance = new Config;
+		mInstance->mName = "main";
 	}
 	return mInstance;
 }
 
-#ifdef C_PTR
-std::string Config::getKey(char *group, char *key)
+/**
+ * @brief Get (or load) a secondary configuration file
+ *
+ * @param  file Name of the configuration file
+ * @return Config* Pointer to the config object for the specified file
+ */
+Config* Config::getInstance(const std::string &file)
 {
-	std::string g = std::string(group);
-	std::string k = std::string(k);
-	return getKey(g, k);
-}
-#endif
+	Config *mainCfg = getInstance();
 
+	if ( file.empty() )
+		return mainCfg;
+
+	// Search into the already loaded files
+	std::vector<Config *>::iterator it;
+	for (it = mainCfg->mFiles.begin(); it != mainCfg->mFiles.end(); ++it)
+	{
+		if (file.compare( (*it)->getName() ) == 0)
+			return (*it);
+	}
+
+	// Here, file not already loaded, try to load it
+
+	std::size_t sep = mainCfg->mFilename.rfind('/');
+	if (sep == std::string::npos)
+	{
+		Log::warning() << "Config: Cannot find base directory of additional files." << Log::endl;
+		return 0;
+	}
+
+	std::string cfgfile = mainCfg->mFilename.substr(0, sep + 1);
+	cfgfile += file;
+	cfgfile += ".cfg";
+
+	// Test if the file exists
+	struct stat fileInfo;
+	if ( stat (cfgfile.c_str(), &fileInfo) )
+		return 0;
+
+	// Try to load the configuration file
+	Config *newFile = 0;
+	try {
+		newFile = new Config;
+		newFile->setName(file);
+		newFile->load(cfgfile);
+
+		mainCfg->mFiles.push_back(newFile);
+	} catch (...) {
+		// ToDo : Log error ?
+	}
+
+	return newFile;
+}
+
+/**
+ * @brief Create a new configuration group (like "[section]" into file)
+ *
+ * @param  name Name of the new group
+ * @return ConfigGroup* Pointer to the newly created group
+ */
 ConfigGroup *Config::createGroup(const std::string &name)
 {
 	ConfigGroup *grp;
@@ -76,6 +160,12 @@ ConfigGroup *Config::createGroup(const std::string &name)
 	return grp;
 }
 
+/**
+ * @brief Get a configuration group identified by his name
+ *
+ * @param  name Name of the group
+ * @return ConfigGroup* Pointer to the configuration group (or NULL)
+ */
 ConfigGroup *Config::getGroup(const std::string &name)
 {
 	size_t nbGroups;
@@ -92,6 +182,14 @@ ConfigGroup *Config::getGroup(const std::string &name)
 	return NULL;
 }
 
+/**
+ * @brief Get the value of a configuration key (as string)
+ *
+ * @param  group Name of the configuration group
+ * @param  key   Name of the key
+ * @param  pos   Optional index into a key array
+ * @return string Value of the key, as string
+ */
 std::string Config::get(const std::string &group, const std::string &key, size_t *pos)
 {
 	ConfigGroup *g;
@@ -110,6 +208,13 @@ std::string Config::get(const std::string &group, const std::string &key, size_t
 	return k->getValue();
 }
 
+/**
+ * @brief Get a key into a group, identified by his position
+ *
+ * @param  group Name of the configuration group
+ * @param  index Index of the key into the specified group
+ * @return ConfigKey* Pointer to the configuration key object
+ */
 ConfigKey *Config::getKey(const std::string &group, int index)
 {
 	ConfigGroup *g;
@@ -148,12 +253,30 @@ ConfigKey *Config::getKey(const std::string &group,
 	return k;
 }
 
+/**
+ * @brief Get the name of this Config object
+ *
+ * @return string Name of this config
+ */
+std::string Config::getName(void)
+{
+	return mName;
+}
+
+/**
+ * @brief Read the content of a config file, and load values
+ *
+ * @param filename Full name of the file to read
+ */
 void Config::load(const std::string &filename)
 {
 	std::fstream cfgFile;
 	cfgFile.open(filename.c_str(), std::ios::in);
 	if ( ! cfgFile.is_open())
 		throw std::runtime_error("Config: Could not open the file!");
+
+	// Save the file name
+	mFilename = filename;
 
 	ConfigGroup *group;
 
@@ -195,6 +318,13 @@ void Config::load(const std::string &filename)
 	cfgFile.close();
 }
 
+/**
+ * @brief Set the value of an existing key, or create it
+ *
+ * @param group Name of the configuration group
+ * @param key Name of the key to modify or create
+ * @param value New value to set (as string)
+ */
 void Config::set(const std::string &group,
                  const std::string &key,
                  const std::string &value)
@@ -209,8 +339,27 @@ void Config::set(const std::string &group,
 	
 	k->setValue(value);
 }
+
+/**
+ * @brief Set the name of this config object
+ *
+ * The name of a config object is mainly used when two or more configuration
+ * file are loaded. This value can be readed by getName and can be set as
+ * parameter of a getInstance.
+ *
+ * @param name New name to set
+ */
+void Config::setName(const std::string &name)
+{
+	mName = name;
+}
+
+} // namespace hermod
                                           
 // -------------------- GROUPs -------------------- //
+
+namespace hermod {
+
 ConfigGroup::ConfigGroup()
 {
 	mName.clear();
@@ -293,4 +442,6 @@ ConfigKey *ConfigGroup::getKey(unsigned int index)
 	
 	return mKeys.at(index);
 }
+
+} // namespace hermod
 /* EOF */
