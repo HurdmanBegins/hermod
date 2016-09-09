@@ -14,7 +14,7 @@
  */
 #ifndef DB_HPP
 #define DB_HPP
-
+#include <string>
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/pgsql/database.hxx>
@@ -25,9 +25,17 @@ namespace hermod {
 class DB
 {
 public:
-	DB();
-	odb::pgsql::database *getDB();
+	explicit DB(const std::string &name);
+	~DB();
+	odb::pgsql::database *get();
+	std::string getName(void);
+	void setDbName(const std::string &name);
+	void setIdent(const std::string &user, const std::string &pass);
 private:
+	std::string mName;
+	std::string mDbName;
+	std::string mIdentUser;
+	std::string mIdentPass;
 	odb::pgsql::database *mDb;
 };
 

@@ -14,7 +14,9 @@
  */
 #ifndef MODDATABASE_HPP
 #define MODDATABASE_HPP
+#include <vector>
 #include "Module.hpp"
+#include "DB.hpp"
 
 namespace hermod {
 	namespace Database {
@@ -23,6 +25,10 @@ class ModDatabase : public Module
 {
 public:
 	ModDatabase();
+	~ModDatabase();
+	DB *get(const std::string &name);
+private:
+	std::vector <DB *> mCache;
 };
 
 	} // namespace Database

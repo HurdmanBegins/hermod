@@ -17,18 +17,48 @@
 namespace hermod {
 	namespace Database {
 
-DB::DB()
+DB::DB(const std::string &name)
+  : mName(name), mDbName("hermod")
 {
-	std::string dbUser("hermod");
-	std::string dbPass("hermod");
-	std::string dbDatabase("hermod");
-
-	mDb = new odb::pgsql::database (dbUser, dbPass, dbDatabase, "localhost");
+	mDb = 0;
+	mIdentUser.clear();
+	mIdentPass.clear();
 }
 
-odb::pgsql::database *DB::getDB()
+DB::~DB()
 {
+	if (mDb)
+	{
+		delete mDb;
+		mDb = 0;
+	}
+}
+
+odb::pgsql::database *DB::get()
+{
+	if (mDb == 0)
+	{
+		mDb = new odb::pgsql::database (mIdentUser, mIdentPass, mDbName, "localhost");
+		if (mDb == 0)
+			throw 1;
+	}
 	return mDb;
+}
+
+std::string DB::getName(void)
+{
+	return mName;
+}
+
+void DB::setDbName(const std::string &name)
+{
+	mDbName = name;
+}
+
+void DB::setIdent(const std::string &user, const std::string &pass)
+{
+	mIdentUser = user;
+	mIdentPass = pass;
 }
 
 	} // namespace Database
