@@ -45,6 +45,7 @@ Here, an example of the described structure (not a real config file) :
 ```
 [global]
     path_session=/tmp/
+    log_file=/var/log/hermod.log
 [plugins]
     load=dummy.so
     load=files.so
@@ -77,3 +78,28 @@ Detailled description
   single value parameter, one "load" must be used for each plugin.
 
 ### Section route
+
+The route section is a bit specific. There is no defined names for keys,
+because keys are based of the target application URI. Each key/value into
+the route section is an atomic route for one URI, to one module.
+
+The key name is the URI itself. For example, if you want to use files module
+to handle URL that start with /the_path/ (http://site.url/the_path/) you need
+a key named "the_path".
+
+The value for a route key, contains : the name of the module that can handle
+requests, a ':', and the name of the page into this module. For example, the
+page "file" of the "Files" module is "Files:file"
+
+```
+[route]
+    the_path=Files:file
+```
+
+### Section for modules
+
+Some modules may need configuration keys. To reduce the risk of name
+collision, a global convention is used. All module-specific keys are located
+into a deditacted section. The name of one of this sections is "mod:" and
+the module name. For example, configuration keys for "files" module is named
+"mod:Files".
