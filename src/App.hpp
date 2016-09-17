@@ -20,6 +20,15 @@
 
 namespace hermod {
 
+/**
+ * @class App
+ * @brief The App class manage all resources of an application.
+ *
+ * An hermod server is mainly a framework to create web services. There is many
+ * resources and layers available to cover the standard requirements (a router,
+ * a session manager, ...) Each server has one App object that manage everything
+ *
+ */
 class App
 {
 public:

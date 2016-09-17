@@ -35,6 +35,10 @@ void OS_LibShutdown(void);
 
 App*  App::mAppInstance = NULL;
 
+/**
+ * @brief Default constructor
+ *
+ */
 App::App()
 {
 	mRunning  = false;
@@ -43,6 +47,10 @@ App::App()
 	mSession  = NULL;
 }
 
+/**
+ * @brief Default destructor
+ *
+ */
 App::~App()
 {
 }
@@ -50,6 +58,10 @@ App::~App()
 /**
  * @brief This method should be used to delete the App singleton
  *
+ * The App class is designed to have only one instance (singleton), allocation
+ * and desallocation are made by class itself using static methods. This destroy
+ * method can be called to delete the global App object (and clean all
+ * associated resources)
  */
 void App::destroy(void)
 {
@@ -73,15 +85,30 @@ void App::destroy(void)
 	mAppInstance = NULL;
 }
 
+/**
+ * @brief Get access to the global App object (singlaton) ... or create it
+ *
+ * @return App* Pointer to the global App object
+ */
 App* App::getInstance()
 {
+	// If App not already available, create it
 	if ( ! mAppInstance)
-	{
 		mAppInstance = new App;
-	}
+
+	// Return the global App object
 	return mAppInstance;
 }
 
+/**
+ * @brief Entry point to start the App
+ *
+ * This method is the main place of an App. It must be called to start the
+ * application, and the app is stopped when this method returns. An app works
+ * using events on descriptors, a big loop wait and dispatch events.
+ *
+ * @return App* Pointer to the App object
+ */
 App* App::exec(void)
 {
 	try {
@@ -134,6 +161,11 @@ App* App::exec(void)
 	return this;
 }
 
+/**
+ * @brief Initialize an application before starting it
+ *
+ * @return App* Pointer to the App object
+ */
 App* App::init(void)
 {
 	Config *cfg = Config::getInstance();
@@ -192,6 +224,10 @@ App* App::init(void)
 	return getInstance();
 }
 
+/**
+ * @brief When a request is received on FCGI socket, this method process it
+ *
+ */
 void App::processFcgi (void)
 {
 	FCGX_Request fcgiReq;
@@ -286,6 +322,10 @@ void App::processFcgi (void)
 	FCGX_Free(&fcgiReq, 0);
 }
 
+/**
+ * @brief This static method handle OS based signals (mainly SIGINT)
+ *
+ */
 void App::sigInt(void)
 {
 	if (mAppInstance)
@@ -294,10 +334,4 @@ void App::sigInt(void)
 	FCGX_ShutdownPending();
 }
 
-/*	if ( ! mSession->isAuth() )
-	{
-		mResponseHeader.setRetCode(302, "Found");
-		mResponseHeader.setContentType("");
-		mResponseHeader.addHeader("Location", "/api/login");
-		return(0);
-	}*/
+/* EOF */
