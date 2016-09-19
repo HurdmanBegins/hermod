@@ -18,8 +18,11 @@
 #include <string>
 #include <vector>
 
-class Module;
 class Page;
+
+namespace hermod {
+
+class Module;
 
 class RouteTarget
 {
@@ -40,4 +43,6 @@ private:
 	std::string  mName;
 	Module      *mModule;
 };
+
+} // namespace hermod
 #endif

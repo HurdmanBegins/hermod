@@ -21,7 +21,7 @@ using namespace std;
 Request::Request(FCGX_Request *req)
 {
 	mFcgiRequest = req;
-	mPlugins = 0;
+	mModuleCache = 0;
 
 	const char *u = FCGX_GetParam("QUERY_STRING", req->envp);
 	if (u)
@@ -131,9 +131,9 @@ std::string Request::getUri(unsigned int n = 0)
 	return uri;
 }
 
-void Request::setPlugins(std::vector<Module *> *plugins)
+void Request::setModules(ModuleCache *cache)
 {
-	mPlugins = plugins;
+	mModuleCache = cache;
 }
 
 void Request::setUri(const std::string &route)

@@ -17,6 +17,11 @@
 #include <string>
 #include "PageFile.hpp"
 #include "Config.hpp"
+#include "File.hpp"
+#include "Directory.hpp"
+
+namespace hermod {
+	namespace Files {
 
 PageFile::PageFile(void)
     : Page()
@@ -26,50 +31,63 @@ PageFile::PageFile(void)
 
 int PageFile::process(void)
 {
+	File reqFile;
+	
 	Config  *cfg = Config::getInstance();
 	// Get the root path for files
 	std::string fileRoot = cfg->get("mod:Files", "root");
 	if (fileRoot.empty())
 		throw runtime_error("Missing config (root)");
 	
-	// If the request have no argument, filename is missing
-	if (getArgCount() == 0)
-		return(-1);
-	
-	// Add a final '/' to root path if needed
-	if ('/' != fileRoot.at( fileRoot.length() - 1 ))
-		fileRoot += '/';
+	reqFile.setRoot(fileRoot);
 	
 	// Compute relative (sub-)path of the file
-	std::string pathName;
 	for (int i = 1; i < getArgCount(); i++)
-	{
-		std::string arg = getArg(i);
-		// Exclude all names starting with '.' (mainly for "..")
-		if (arg.at(0) == '.')
-			continue;
-		if (arg.at(0) == '\\')
-			continue;
-		// Add this argument to the pathname
-		pathName.append(arg);
-		pathName += '/';
-	}
+		reqFile.addPath( getArg(i) );
 	
 	// Get the file name (last argument)
-	std::string fileName = getArg( getArgCount() );
+	if (getArgCount() > 0)
+		reqFile.setName( getArg( getArgCount() ) );
 	
+	if (reqFile.isDirectory())
+		directoryListing(reqFile);
+	else
+		fileDisplay(reqFile);
 	
-	std::string fullName;
-	fullName = fileRoot;
-	if ( ! pathName.empty() )
-		fullName += pathName;
-	fullName += fileName;
+	return(0);
+}
+
+void PageFile::directoryListing(File &dirFile)
+{
+	Directory reqDir(dirFile);
+
+	mResponse->header()->setContentType("text/html");
+	cout << "<html>";
+	cout <<   "<head><title>Directory listing</title></head>";
+	cout <<   "<body>";
+	cout <<     "<h1>Directory listing " << reqDir.getName() << "</h1>";
+	cout <<     "<hr>";
+	for (int i = 0; i < reqDir.count(); ++i)
+	{
+		File *f = reqDir.at(i);
+		cout << "<li>";
+		cout << f->getName();
+		cout << "</li>";
+	}
+	cout <<   "</body>";
+	cout << "</html>" << endl;
+}
+
+void PageFile::fileDisplay(File &file)
+{
+	std::string filename = file.getFullname();
 	
 	// Open file
 	std::fstream dataFile;
-	dataFile.open(fullName.c_str(), std::ios::in|std::ios::binary);
+	dataFile.open(filename.c_str(), std::ios::in|std::ios::binary);
 	if ( ! dataFile.is_open() )
-		return(-2);
+		return;
+	
 	// Read file content
 	std::vector<unsigned char> data;
 	data.insert(data.begin(),
@@ -82,6 +100,7 @@ int PageFile::process(void)
 
 	std::string strData(data.begin(), data.end());
 	cout << strData;
-	
-	return(0);
 }
+
+	} // namespace Files
+} // namespace hermod

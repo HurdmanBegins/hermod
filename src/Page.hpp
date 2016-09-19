@@ -20,6 +20,9 @@
 #include <sstream>
 #include <vector>
 
+#include "Content.hpp"
+#include "ContentHtml.hpp"
+#include "ContentJson.hpp"
 #include "Response.hpp"
 #include "Session.hpp"
 
@@ -35,6 +38,9 @@ public:
 	void   setReponse(Response  *obj);
 	void   initSession(void);
 	
+	hermod::Content     *initContent(void);
+	hermod::ContentHtml *initContentHtml(void);
+	hermod::ContentJson *initContentJson(void);
 	std::string getUri(void);
 	
 	bool   useSession(void);

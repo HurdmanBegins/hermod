@@ -21,6 +21,8 @@
 #include "config.h"
 #include "ConfigKey.hpp"
 
+namespace hermod {
+
 class ConfigGroup;
 
 /**
@@ -32,16 +34,12 @@ class Config
 {
 public:
 	static void destroy();
-	static Config* getInstance();
+	static Config* getInstance(void);
+	static Config* getInstance(const std::string &file);
 	std::string get(const std::string &group, const std::string &key, size_t *pos = 0);
-	bool        getBool(const std::string &group,
-	                    const std::string &key,
-	                    bool  def);
-	unsigned int getInt(const std::string &group,
-	                    const std::string &key,
-	                    bool  def);
 	ConfigKey  *getKey(const std::string &group, const std::string &key);
 	ConfigKey  *getKey(const std::string &group, int index);
+	std::string getName(void);
 	void set(const std::string &group,
 	         const std::string &key,
 	         const std::string &value);
@@ -52,12 +50,22 @@ protected:
 private:
 	Config() {
 		mGroups.clear();
+		mFiles.clear();
 	};
+	~Config();
+	void setName(const std::string &name);
 private:
 	static Config* mInstance;
+	std::string    mName;
+	std::string    mFilename;
 	std::vector<ConfigGroup *> mGroups;
+	std::vector<Config *> mFiles;
 };
 
+/**
+ * @class ConfigGroup
+ *
+ */
 class ConfigGroup
 {
 public:
@@ -73,4 +81,5 @@ private:
 	std::vector<ConfigKey *> mKeys;
 };
 
+} // namespace hermod
 #endif

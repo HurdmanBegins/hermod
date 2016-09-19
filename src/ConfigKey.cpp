@@ -15,14 +15,15 @@
 #include <cstdlib>
 #include "ConfigKey.hpp"
 
+namespace hermod {
+
 /**
  * @brief Default constructor for a config key object
  *
  */
-ConfigKey::ConfigKey(const std::string &name)
+ConfigKey::ConfigKey(const std::string &name) : mName(name)
 {
 	mPos  = 0;
-	mName = name;
 	mValue.clear();
 }
 
@@ -122,4 +123,5 @@ void ConfigKey::setValue(const std::string &value)
 	mValue = value;
 }
 
+} // namespace hermod
 /* EOF */

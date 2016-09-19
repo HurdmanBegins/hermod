@@ -17,10 +17,16 @@
 
 #include "Page.hpp"
 
+namespace hermod {
+	namespace Dummy {
+
 class PageHello: public Page
 {
 public:
 	PageHello();
 	int process();
 };
+
+	} // namespace Dummy
+} // namespace hermod
 #endif

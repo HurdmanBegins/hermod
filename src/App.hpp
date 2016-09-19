@@ -12,35 +12,45 @@
  *
  * Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  */
-#include "Module.hpp"
+#ifndef APP_HPP
+#define APP_HPP
+#include "ModuleCache.hpp"
 #include "Router.hpp"
 #include "Session.hpp"
 
+namespace hermod {
+
+/**
+ * @class App
+ * @brief The App class manage all resources of an application.
+ *
+ * An hermod server is mainly a framework to create web services. There is many
+ * resources and layers available to cover the standard requirements (a router,
+ * a session manager, ...) Each server has one App object that manage everything
+ *
+ */
 class App
 {
 public:
-	void exec (void);
+	static void destroy();
+	App * exec (void);
 	App * init (void);
-	void moduleAdd(Module *mod);
 	static App* getInstance();
 public:
 	static void sigInt(void);
 protected:
-	void moduleLoad  (const std::string &name);
-	void moduleUnload(int n);
+	void processFcgi (void);
 private:
-	App(){
-	  mRunning  = false;
-	  mFcgxSock = -1;
-	  mRouter   = NULL;
-	  mPlugins.clear();
-	  mSession  = NULL;
-	};
+	App();
+	~App();
 private:
     	static App*  mAppInstance;
 	bool         mRunning;
 	int          mFcgxSock;
 	Router      *mRouter;
 	Session     *mSession;
-	std::vector<Module *> mPlugins;
+	ModuleCache  mModuleCache;
 };
+
+} // namespace hermod
+#endif

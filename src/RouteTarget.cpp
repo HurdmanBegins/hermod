@@ -16,6 +16,8 @@
 #include "Module.hpp"
 #include "Page.hpp"
 
+namespace hermod {
+
 RouteTarget::RouteTarget(void)
 {
 	mValid  = false;
@@ -77,4 +79,6 @@ void RouteTarget::setName(const std::string &name)
 {
 	mName = name;
 }
+
+} // namespace hermod
 /* EOF */

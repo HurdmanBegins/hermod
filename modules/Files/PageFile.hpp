@@ -17,10 +17,20 @@
 
 #include "Page.hpp"
 
+namespace hermod {
+	namespace Files {
+
+class File;
+
 class PageFile: public Page
 {
 public:
 	PageFile();
 	int process();
+private:
+	void directoryListing(File &dirFile);
+	void fileDisplay(File &file);
 };
+	} // namespace Files
+} // namespace hermod
 #endif

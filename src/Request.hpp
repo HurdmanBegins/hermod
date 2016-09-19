@@ -16,10 +16,10 @@
 #define REQUEST_HPP
 
 #include <fcgio.h>
-#include "Module.hpp"
+#include "ModuleCache.hpp"
 #include "Page.hpp"
 
-class Module;
+using namespace  hermod;
 
 class Request
 {
@@ -28,7 +28,7 @@ public:
 public:
 	explicit Request(FCGX_Request *req);
 	~Request();
-	void setPlugins(std::vector<Module *> *plugins);
+	void setModules(ModuleCache *cache);
 	unsigned int     countUriArgs(void);
 	FCGX_Request    *getFCGX  (void);
 	Request::Method  getMethod(void);
@@ -38,7 +38,7 @@ public:
 	void        setUri(const std::string &route);
 private:
 	FCGX_Request  *mFcgiRequest;
-	std::vector<Module *> *mPlugins;
+	ModuleCache   *mModuleCache;
 	std::vector<std::string> mUri;
 };
 #endif

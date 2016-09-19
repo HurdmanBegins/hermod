@@ -18,13 +18,34 @@
 #include "Router.hpp"
 #include "Page.hpp"
 
+namespace hermod {
+
 /**
  * @brief Default constructor
  *
  */
-Module::Module(void)
+Module::Module(ModuleCache *cache)
 {
-	mHandle = 0;
+	mHandle  = 0;
+	mModules = cache;
+}
+
+/**
+ * @brief Get access to the cache that manage this module
+ *
+ * To easily manage module, they can be put into a "cache" object. This cache
+ * is able to create, load (and unload) them and maintain a list of known
+ * modules. This getter method allow to get a pointer to the cache that "own"
+ * the current object.
+ *
+ * @return ModuleCache* Pointer to the parent cache
+ */
+ModuleCache *Module::getCache(void)
+{
+	if (mModules == 0)
+		throw 1;
+	
+	return mModules;
 }
 
 /**
@@ -53,6 +74,16 @@ void *Module::getHandle(void)
 std::string Module::getName(void)
 {
 	return mName;
+}
+
+/**
+ * @brief Set the ModuleCache where this module is registered
+ *
+ * @param cache Pointer to the parent ModuleCache
+ */
+void Module::setCache (ModuleCache *cache)
+{
+	mModules = cache;
 }
 
 /**
@@ -95,4 +126,6 @@ Page *Module::newPage(const std::string &name)
 	(void)name;
 	return NULL;
 }
+
+} // namespace hermod
 /* EOF */

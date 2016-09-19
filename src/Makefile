@@ -13,9 +13,15 @@
  # Authors: Saint-Genest Gwenael <gwen@hooligan0.net>
  #
 TARGET = hermod
-SRC  = main.cpp App.cpp Config.cpp ConfigKey.cpp Log.cpp Module.cpp Request.cpp
+SRC  = main.cpp App.cpp Config.cpp ConfigKey.cpp Log.cpp Request.cpp
+SRC += Module.cpp ModuleCache.cpp
 SRC += Router.cpp RouteTarget.cpp
 SRC += Page.cpp Session.cpp SessionCache.cpp
+SRC += Content.cpp
+SRC += ContentHtml.cpp ContentHtml/HtmlElement.cpp ContentHtml/HtmlTag.cpp
+SRC += ContentHtml/HtmlHtml.cpp ContentHtml/HtmlH.cpp ContentHtml/Template.cpp
+SRC += ContentJson.cpp ContentJson/JsonElement.cpp ContentJson/JsonObject.cpp
+SRC += ContentJson/JsonString.cpp
 SRC += Response.cpp ResponseHeader.cpp
 
 INSTALL="/usr/local"
@@ -25,6 +31,9 @@ CFLAGS   = -Wall -Wextra -Wuninitialized -Wunused-label -Wunused-value -Wunused-
 CFLAGS  += -DINSTALL=\"$(INSTALL)\"
 LDFLAGS  = -lfcgi -lfcgi++
 LDFLAGS += -ldl -rdynamic
+CHECK  = --enable=warning
+CHECK += --enable=performance
+CHECK += --enable=style
 
 _COBJ =  $(SRC:.cpp=.o)
 COBJ = $(patsubst %, %,$(_COBJ))
@@ -36,11 +45,15 @@ all: $(COBJ)
 install:
 	cp $(TARGET) $(INSTALL)/bin/
 
+check:
+	@echo "  [CPPCHECK] ."
+	cppcheck $(CHECK) --quiet .
+	
 clean:
 	@echo "  [RM] $(TARGET) *.o"
 	@rm -f $(TARGET) $(COBJ)
 	@echo "  [RM] temporary files (*~)"
-	@rm -f *~
+	@rm -f *~ ContentHtml/*~ ContentJson/*~
 
 $(COBJ) : %.o : %.cpp
 	@echo "  [CC] $@"
